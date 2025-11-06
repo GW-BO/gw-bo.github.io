@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ET Symposium Timetable | Bologna 2025</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0KTBB3BZ5N"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-0KTBB3BZ5N');
+    </script>
+
+    <style>
+        :root {
+            --primary: #1a237e;
+            --primary-light: #3949ab;
+            --secondary: #f5f5f5;
+            --accent: #c5cae9;
+            --text: #212121;
+            --text-light: #757575;
+            --border: #e0e0e0;
+            --highlight: #bbdefb;
+            --current-session-bg: rgba(187, 222, 251, 0.3);
+            --current-session-border: #64b5f6;
+            --osb-color: #4a148c;
+            --osb-light: #7c43bd;
+            --isb-color: #2e7d32;
+            --isb-light: #60ad5e;
+            --spb-color: #f9a825;
+            --spb-light: #fbc02d;
+            --eib-color: #1565c0;
+            --eib-light: #42a5f5;
+            --plenary-color: #0277bd;
+            --plenary-light: #4fc3f7;
+            --break-color: #78909c;
+            --break-light: #b0bec5;
+            --social-color: #283593;
+            --social-light: #5c6bc0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--secondary);
+            color: var(--text);
+            line-height: 1.4;
+        }
+        
+        .container {
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            margin-bottom: 15px;
+        }
+        
+        .logo-container {
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            width: 100%;
+        }
+        
+        .days-nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .day-btn {
+            background-color: white;
+            border: 1px solid var(--border);
+            padding: 10px 18px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 1.15rem;
+            font-weight: 500;
+            background-clip: padding-box;
+        }
+        
+        .day-btn span {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: var(--primary);
+        }
+        
+        .day-btn:hover {
+            background-color: var(--accent);
+        }
+        
+        .day-btn.active {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .day-btn.active span {
+            background: none;
+            -webkit-text-fill-color: white;
+            color: white;
+        }
+        
+        .timetable-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 20px;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            height: calc(100vh - 180px); /* Ensure this height is appropriate */
+            overflow-y: auto;
+        }
+        
+        #schedule-container {
+            padding: 15px;
+        }
+        
+        .time-slot {
+            display: flex;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .time-label {
+            min-width: 60px;
+            height: fit-content;
+            text-align: right;
+            position: sticky;
+            left: 0;
+            z-index: 2; /* Keep time label above sessions */
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .time-start {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: var(--primary);
+        }
+        
+        .concurrent-sessions {
+            display: flex;
+            flex-wrap: wrap; /* Allow sessions to wrap */
+            gap: 10px;
+            margin-left: 8px;
+            flex: 1;
+            position: relative;
+        }
+        
+        .session {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 10px 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, max-height 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+            min-height: 65px;
+            overflow: hidden; /* Important for max-height transition */
+            cursor: pointer;
+            flex-grow: 1; /* Allow sessions to grow and share space */
+            flex-basis: 200px; /* Minimum base width, will grow from this */
+        }
+
+        /* If there's only one session in the time slot, it takes full width */
+        .concurrent-sessions.has-one-item .session {
+            flex-basis: 100%;
+        }
+        
+        /* If there are exactly three items, try to make them equal */
+        /* This might be overridden by expanded state or if not enough space */
+        .concurrent-sessions.has-three-items .session:not(.expanded) {
+             /* flex-basis: calc(33.333% - (2 * 10px / 3)); /* Adjust for gap */
+             /* Simpler: let flex-grow handle it with a base, or set to 0 for equal sharing if min-width is also 0 */
+            flex-grow: 1;
+            flex-basis: 0; /* Allows equal sharing based on flex-grow */
+            min-width: 0; /* Allows shrinking below 200px if needed for equal sharing */
+        }
+         .concurrent-sessions.has-two-items .session:not(.expanded) {
+            flex-grow: 1;
+            flex-basis: 0;
+            min-width: 0;
+        }
+
+
+        /* Styling for different session types */
+        .session.osb { border-left: 4px solid var(--osb-color); }
+        .session.isb { border-left: 4px solid var(--isb-color); }
+        .session.spb { border-left: 4px solid var(--spb-color); }
+        .session.eib { border-left: 4px solid var(--eib-color); }
+        .session.plenary { border-left: 4px solid var(--plenary-color); }
+        .session.break {
+            border: none;
+            border-left: 4px solid var(--break-color);
+            background-color: rgba(176, 190, 197, 0.1);
+        }
+        .session.social {
+            border-left: 4px solid var(--social-color);
+            background-color: #eaf2ff;
+        }
+        
+        .session:hover:not(.expanded) { /* Don't apply hover transform if expanded, could interfere */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .session-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+            word-break: break-word;
+            hyphens: auto;
+            display: flex; /* Keep for alignment if needed, but no icon now */
+            justify-content: space-between; /* Not strictly needed without icon */
+            align-items: center;
+        }
+        
+        .osb .session-title { color: var(--osb-color); }
+        .isb .session-title { color: var(--isb-color); }
+        .spb .session-title { color: var(--spb-color); }
+        .eib .session-title { color: var(--eib-color); }
+        .plenary .session-title { color: var(--plenary-color); }
+        .break .session-title {
+            color: var(--break-color);
+            font-weight: normal;
+        }
+        .social .session-title {
+            color: var(--social-color);
+            
+        }
+        
+        .session-place {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+        }
+        
+        .session-place:before {
+            content: "📍";
+            margin-right: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .session.break {
+            background-color: transparent;
+            border: none; /* Keep left border for type */
+            box-shadow: none;
+            padding: 8px 0;
+            min-height: auto;
+            cursor: default; /* Breaks are not clickable */
+        }
+        
+        .session.break .session-title {
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+        
+        .session.break .session-place,
+        .session.break .session-details {
+            display: none;
+        }
+        
+        .session-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding-top 0.3s ease-out, margin-top 0.3s ease-out; /* Smooth transition for details */
+            border-top: 1px dashed var(--border);
+            margin-top: 0; /* Start with no margin */
+            padding-top: 0; /* Start with no padding */
+        }
+        
+        .session.expanded {
+            flex-basis: 100% !important; /* Take full width of the concurrent-sessions container */
+            order: -1; /* Bring expanded session to the top of its group */
+            /* transition: flex-basis 0.3s ease; /* This can be jittery, rely on content height transition */
+        }
+        
+        .session.expanded .session-details {
+            max-height: 1000px; /* Arbitrary large value for details to show */
+            margin-top: 10px; /* Add margin when expanded */
+            padding-top: 10px; /* Add padding when expanded */
+        }
+
+        /* When a child session is expanded, make other non-expanded sessions in the same group stack below */
+        .concurrent-sessions.child-is-expanded .session:not(.expanded) {
+            flex-basis: 100% !important; /* Make them take full width to stack */
+            margin-top: 10px; /* Add some space between stacked items */
+            order: 0; /* Ensure they come after the expanded one */
+        }
+        
+        .speaker-item {
+            padding: 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        .speaker-name {
+            font-weight: 500;
+        }
+        
+        .speaker-time {
+            display: inline-block;
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+        }
+        
+        .talk-title {
+            font-style: italic;
+            color: var(--text-light);
+            margin-top: 3px;
+            font-size: 0.85rem;
+        }
+        
+        .session-description {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--text-light);
+        }
+        
+        .session-convener {
+            font-size: 0.85rem;
+            font-style: italic;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+        
+        .session.current-session:not(.break) { /* Don't animate breaks */
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { background-color: var(--current-session-bg); }
+            50% { background-color: rgba(144, 202, 249, 0.6); } /* Slightly more opaque */
+            100% { background-color: var(--current-session-bg); }
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px; /* Slightly reduce padding */
+                max-width: 95%;
+            }
+            
+            .logo-container {
+                padding: 15px 0;
+            }
+            .logo-container img {
+                width: 90%; /* Make logo slightly smaller on tablets */
+            }
+            
+            .day-btn {
+                padding: 8px 12px; /* Smaller buttons */
+                font-size: 1rem;
+            }
+            
+            #schedule-container {
+                padding: 10px; /* Reduce padding */
+            }
+            
+            .time-slot {
+                flex-direction: column; /* Stack time label above sessions */
+            }
+            
+            .time-label {
+                margin-bottom: 10px;
+                position: static; /* No longer sticky */
+                width: auto;
+                text-align: left;
+                align-items: flex-start;
+                padding-right: 0;
+                z-index: 0; /* Reset z-index */
+            }
+            
+            .time-start {
+                font-size: 1.2rem;
+            }
+            
+            .concurrent-sessions {
+                margin-left: 0; /* No margin when stacked */
+            }
+            
+            /* On mobile, all sessions (even non-expanded) take full width by default */
+            .session,
+            .concurrent-sessions.child-is-expanded .session:not(.expanded),
+            .session.expanded {
+                flex-basis: 100% !important;
+                min-width: 100% !important; /* Ensure full width */
+                margin-bottom: 10px; /* Consistent margin */
+            }
+            
+            .session-title {
+                font-size: 1rem; /* Adjust title size */
+            }
+            
+            .session.break {
+                padding: 5px 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .days-nav {
+                gap: 6px; /* Smaller gap for day buttons */
+            }
+            
+            .day-btn {
+                padding: 8px 10px;
+                font-size: 0.85rem; /* Even smaller font for day buttons */
+                flex: 1 1 auto; /* Allow buttons to take available space and wrap */
+                justify-content: center;
+                white-space: nowrap;
+            }
+            
+            .time-start {
+                font-size: 1.1rem;
+            }
+            
+            .session-title {
+                font-size: 0.95rem;
+            }
+            
+            .session-place, .session-convener, .speaker-item, .session-description {
+                font-size: 0.8rem; /* Smaller text in session details */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="Bologna-ET-map.html"><div class="logo-container">
+                <img src="../images/Header_Timeline.svg" alt="ET Symposium Timetable Header" width="80%">
+            </div>
+            </a>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div id="days-navigation" class="days-nav">
+            </div>
+        
+        <div class="timetable-container">
+            <div id="schedule-container">
+                </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>XV ET Symposium | Bologna - May 26, 2025 - May 30, 2025</p>
+            <p>CNR - Bologna Research Area</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Complete schedule data in JSON format
+        const scheduleData = {
+            "monday": {
+                "date": "Monday 26 May",
+                "sessions": [
+                    {
+                        "startTime": "13:00",
+                        "endTime": "14:30",
+                        "title": "Start of ET Symposium",
+                        "location": "Plenary Room, CNR",
+                        "type": "plenary",
+                        "speakers": []
+                    },
+                    {
+                        "startTime": "14:30",
+                        "endTime": "15:30",
+                        "title": "Plenary",
+                        "location": "Plenary Room, CNR",
+                        "type": "plenary",
+                        "description": "Welcome by LOC & poster sparklers"
+                    },
+                    {
+                        "startTime": "15:30",
+                        "endTime": "16:00",
+                        "title": "Coffee break 🍵",
+                        "location": "Plenary Room, CNR",
+                        "type": "break"
+                    },
+                    {
+                        "startTime": "16:00",
+                        "endTime": "18:15",
+                        "title": "Instrument Science (ISB) / ETO",
+                        "location": "Plenary Room, CNR",
+                        "type": "isb",
+                        "talks": [
+                            { "time": "16:00 – 16:15", "title": "Brief introduction to ISB", "speakers": ["Jan Harms", "Stefan Hild"] },
+                            { "time": "16:15 – 16:25", "title": "General introduction to ETO Design Task Force", "speakers": ["Fiodor Sorrentino"] },
+                            { "time": "16:25 – 16:45", "title": "System decomposition", "speakers": ["Romano Meijer"] },
+                            { "time": "16:45 – 17:05", "title": "Integrated towers", "speakers": ["Romano Meijer"] },
+                            { "time": "17:05 – 17:35", "title": "Optical layout updates, flexibility envelope and flexibility demands - 2L & triangle", "speakers": ["Anna Green", "Antonio Perreca"] },
+                            { "time": "17:35 – 17:55", "title": "Detector layout updates - 2L & triangle", "speakers": ["Max Majoor"] },
+                            { "time": "17:55 – 18:15", "title": "Requirements to civil infrastructure", "speakers": ["Jonathan Bratanata"] }
+                        ],
+                        "conveners": ["Stefan Hild", "Jan Harms", "Fiodor Sorrentino"]
+                    },
+                    {
+                        "startTime": "16:00",
+                        "endTime": "18:30",
+                        "title": "Observational Science (OSB)",
+                        "location": "Rooms 215 + 216, CNR",
+                        "type": "osb",
+                        "talks": [
+                            { "time": "16:00 – 18:30", "title": "Roadmap of the OSB" }
+                        ],
+                        "description": "Detailed OSB roadmap discussion."
+                    },
+                    {
+                        "startTime": "19:30",
+                        "endTime": "23:30",
+                        "title": "Early career social event",
+                        "location": "Dragon Pub - Viale della Repubblica, 16a, 40127 Bologna BO",
+                        "type": "social"
+                    }
+                ]
+            },
+            "tuesday": {
+                "date": "Tuesday 27 May",
+                "sessions": [
+                    {
+                        "startTime": "09:00",
+                        "endTime": "11:10",
+                        "title": "EIB",
+                        "location": "Room 213, CNR",
+                        "type": "eib",
+                        "talks": [
+                            { "time": "09:00 – 09:10", "title": "Introductions", "speakers": ["Patrice Verdier", "Stefano Bagnasco"] },
+                            { "time": "09:10 – 09:30", "title": "Div 3 report" },
+                            { "time": "09:30 – 09:50", "title": "ET-PP WP8" },
+                            { "time": "09:50 – 10:10", "title": "Challenges in Multimessenger Astronomy in the ET Era: From Interoperability to Multimodal Generative AI Systems", "speakers": ["Giuseppe Greco"] },
+                            { "time": "10:10 – 10:30", "title": "Update on the CTLab4ET deployment", "speakers": ["Lia Lavezzi"] },
+                            { "time": "10:30 – 10:50", "title": "GW data analysis on the ESCAPE Virtual Research Environment", "speakers": ["Alberto Iess"] },
+                            { "time": "10:50 – 11:10", "title": "Discussion" }
+                        ]
+                    },
+                    {
+                        "startTime": "09:00",
+                        "endTime": "11:00",
+                        "title": "ISB",
+                        "location": "Plenary Room, CNR", // PDF source implies a shared room or needs clarification if ISB has its own
+                        "type": "isb",
+                        "talks": [
+                            { "time": "09:00 – 09:15", "title": "E-test Update", "speakers": ["MOUHAMAD HAIDAR LAKKIS"] },
+                            { "time": "09:15 – 09:30", "title": "New Generation Superattenuators (NGSA) for Einstein Telescope: status of the projet", "speakers": ["Lucia Trozzo"] },
+                            { "time": "09:30 – 09:45", "title": "The status of CAOS laboratory", "speakers": ["Francesco Bianchi"] },
+                            { "time": "09:45 – 10:00", "title": "COBRI Sensor development for seismic isolation and control", "speakers": ["Tobias Eckhardt"] },
+                            { "time": "10:00 – 10:15", "title": "Static Fatigue in Fused Silica Fibres", "speakers": ["Varun Deshmukh"] },
+                            { "time": "10:15 – 10:30", "title": "Mechanical Oscillators in Non-Equilibrium Thermodynamics (MONET)", "speakers": ["Wanda Vossius"] },
+                            { "time": "10:30 – 10:45", "title": "DESIGN AND ANALYSIS OF A CRYSTALLINE SILICON TRIANGULAR VERTICAL SPRING BLADES-CRYOGENICS SUSPENSION SYSTEM FOR THE EINSTEIN TELESCOPE", "speakers": ["Esra Zerina Appavuravther"] },
+                            { "time": "10:45 – 11:00", "title": "A single-cavern solution for the ET-LF test-masses", "speakers": ["Conor Mow-Lowry"] }
+                        ]
+                    },
+                    {
+                        "startTime": "09:00",
+                        "endTime": "11:00",
+                        "title": "OSB",
+                        "location": "Rooms 215 + 216, CNR",
+                        "type": "osb",
+                        "talks": [
+                            { "time": "09:00 – 09:12", "title": "Theory-agnostic searches for non-gravitational modes in black hole ringdown", "speakers": ["Francesco Crescimbeni"] },
+                            { "time": "09:12 – 09:24", "title": "Echoes of the black hole microstructure", "speakers": ["Alexandru Dima"] },
+                            { "time": "09:24 – 09:36", "title": "Environmental imprints on black hole ringdowns: quasinormal modes in matter halos", "speakers": ["Laura Pezzella"] },
+                            { "time": "09:36 – 09:48", "title": "Model-agnostic inspiral tests of the multipolar structure and tidal properties of a Kerr Black Hole", "speakers": ["Alessandro Agapito"] },
+                            { "time": "09:48 – 10:00", "title": "Greybody factors as robust gravitational observables: insights into post-merger signals and echoes from ultracompact objects", "speakers": ["Romeo Felice Rosato"] },
+                            { "time": "10:00 – 10:12", "title": "Intermediate mass black holes play hide-and-seek", "speakers": ["Carlo Nipoti"] },
+                            { "time": "10:12 – 10:24", "title": "Seeds to success: growing heavy black holes in dense star clusters", "speakers": ["Lavinia Paiella"] },
+                            { "time": "10:24 – 10:36", "title": "Probing the population of pop III remnants using gravitational wave observations", "speakers": ["Krishnendu Naderi Varium"] },
+                            { "time": "10:36 – 10:48", "title": "Simulating intermediate-mass black holes in the first star clusters", "speakers": ["Benedetta Mestichelli"] },
+                            { "time": "10:48 – 11:00", "title": "Disentangling the formation channels of binary black holes", "speakers": ["Erika Korb"] }
+                        ]
+                    },
+                    {
+                        "startTime": "09:00",
+                        "endTime": "11:00",
+                        "title": "SPB",
+                        "location": "INAF Room, CNR",
+                        "type": "spb"
+                    },
+                    {
+                        "startTime": "11:00",
+                        "endTime": "11:30",
+                        "title": "Coffee break 🍵",
+                        "location": "CNR - Bologna Research Area",
+                        "type": "break"
+                    },
+                    {
+                        "startTime": "11:30",
+                        "endTime": "13:00",
+                        "title": "EIB", // HTML had "Part 2"
+                        "location": "Room 213, CNR", // PDF: CNR - Bologna Research Area
+                        "type": "eib",
+                        "talks": [
+                            { "time": "11:30 – 11:50", "title": "The ET Members Database", "speakers": ["Gary Hemming"] },
+                            { "time": "11:50 – 12:10", "title": "ETAP + MADDEN status" },
+                            { "time": "12:10 – 12:30", "title": "The UK effort for 3G computing" },
+                            { "time": "12:30 – 13:00", "title": "Discussion" }
+                        ]
+                    },
+                    {
+                        "startTime": "11:30",
+                        "endTime": "13:00",
+                        "title": "ISB / ETO",
+                        "location": "Plenary Room, CNR", // PDF source implies a shared room or needs clarification
+                        "type": "isb", // Assuming this falls under ISB umbrella
+                        "talks": [
+                            { "time": "11:30 – 12:00", "title": "A proposition of scheduling methodology for ET", "speakers": ["Christian Olivetto"] },
+                            { "time": "12:00 – 12:30", "title": "ET's Model-Based Systems Engineering exercise update: Towards a Unified Systems Architecture", "speakers": ["Frederik Moers", "Romano Meijer"] },
+                            { "time": "12:30 – 13:00", "title": "Risk management critical role. Risk assessment status and risk management evolution", "speakers": ["Ghada Mahmoud"] }
+                        ]
+                    },
+                    {
+                        "startTime": "11:30",
+                        "endTime": "13:00", // PDF implies talks end 13:06
+                        "title": "OSB", // HTML had "Part 2"
+                        "location": "Rooms 215 + 216, CNR",
+                        "type": "osb",
+                        "talks": [
+                        { "time": "11:30 – 11:42", "title": "Postmerger: a new and dominant contribution to the gravitational-wave background from binary neutron stars", "speakers": ["Léonard Lehoucq"] },
+                        { "time": "11:42 – 11:54", "title": "Unravelling the nature of intermediate-mass black holes with ET and 3rd generation detectors", "speakers": ["Manuel Arca Sedda"] },
+                        { "time": "11:54 – 12:06", "title": "The Formation of Early Supermassive Black Holes and Their Gravitational Wave Signatures", "speakers": ["Nazanin Davari"] },
+                        { "time": "12:06 – 12:18", "title": "Exploring High-Redshift Compact Binary Evolution with Next-Generation GW Detectors", "speakers": ["Divyajyoti ."] },
+                        { "time": "12:18 – 12:30", "title": "Interface modes in inspiralling neutron stars: A smoking-gun gravitational-wave signature of first-order phase transitions", "speakers": ["Fabian Gittins"] },
+                        { "time": "12:30 – 12:42", "title": "Probing hadron-quark phase transition in twin stars using f-modes", "speakers": ["David Edwin Alvarez Castillo"] },
+                        { "time": "12:42 – 12:54", "title": "Stability of differentially rotating hyper-massive neutron stars", "speakers": ["Dorota Rosinska"] },
+                        { "time": "12:54 – 13:06", "title": "Subsolar mass compact objects", "speakers": ["Alessandro Drago"] }
+                        ]
+                    },
+                    {
+                        "startTime": "11:30",
+                        "endTime": "13:00",
+                        "title": "SPB", // HTML had "Part 2"
+                        "location": "INAF Room, CNR", // PDF: CNR - Bologna Research Area
+                        "type": "spb"
+                    },
+                    {
+                        "startTime": "13:00", // PDF implies 13:06 for some
+                        "endTime": "14:30",
+                        "title": "Lunch 🍝",
+                        "location": "CNR - Bologna Research Area",
+                        "type": "break"
+                    },
+                    {
+                        "startTime": "14:30",
+                        "endTime": "16:00",
+                        "title": "ISB", // HTML had "Afternoon"
+                        "location": "Plenary Room, CNR", // PDF source implies a shared room or needs clarification
+                        "type": "isb",
+                        "talks": [
+                            { "time": "14:30 – 14:45", "title": "Upgrading the Superattenuator: Towards an Active Seismic Pre-Isolator for Next-Generation Gravitational Wave Detectors", "speakers": ["Francesca Spada"] },
+                            { "time": "14:45 – 15:00", "title": "Glass sensors as an inertial sensing solution for future gravitational wave detectors", "speakers": ["Jonathan Carter"] },
+                            { "time": "15:00 – 15:15", "title": "The World's First Underground Facility for Interplatform Control and Seismic Isolation in Gravitational-Wave Detection", "speakers": ["Tomislav Andric"] },
+                            { "time": "15:15 – 15:30", "title": "Magnetic Noise and Mitigation Strategies for the Einstein Telescope", "speakers": ["Barbara Garaventa"] },
+                            { "time": "15:30 – 15:45", "title": "Modelling low-frequency control noise for the Einstein Telescope and deriving a requirements matrix", "speakers": ["Artem Basalaev"] },
+                            { "time": "15:45 – 16:00", "title": "Depth- and Distance-Dependent Correlated Seismic Noise Analysis at LSBB and Implications of Newtonian Noise Mitigation for the Einstein Telescope", "speakers": ["Anoop Koushik"] }
+                        ]
+                    },
+                    {
+                        "startTime": "14:30",
+                        "endTime": "16:00",
+                        "title": "OSB & EIB joint session",
+                        "location": "Rooms 215 + 216, CNR", // PDF source implies a shared room or needs clarification
+                        "type": "osb", // Or "eib", or a joint type
+                        "talks": [
+                            { "time": "14:30 – 14:45", "title": "Report from EIB Div1" },
+                            { "time": "14:45 – 15:00", "title": "Report from OSB Div10" },
+                            { "time": "15:00 – 15:15", "title": "Results from MDC1" },
+                            { "time": "15:15 – 15:30", "title": "MDC data generation code management" },
+                            { "time": "15:30 – 15:45", "title": "EIB Div4 and LL computing model" },
+                            { "time": "15:45 – 16:00", "title": "Discussion on MM science and the LL computing model" }
+                        ]
+                    },
+                    {
+                        "startTime": "14:30",
+                        "endTime": "16:00",
+                        "title": "SPB", // HTML had "Afternoon"
+                        "location": "INAF Room, CNR", // PDF: CNR - Bologna Research Area
+                        "type": "spb"
+                    },
+                    {
+                        "startTime": "16:00",
+                        "endTime": "18:00",
+                        "title": "Poster Session",
+                        "location": "Main Hall, CNR",
+                        "type": "social" // Or "plenary" depending on nature
+                    }
+                ]
+            },
+            "wednesday": {
+                "date": "Wednesday 28 May",
+                "sessions": [
+                    {
+                        "startTime": "08:30",
+                        "endTime": "11:00",
+                        "title": "ISB",
+                        "location": "Plenary Room, CNR", // PDF source implies a shared room
+                        "type": "isb",
+                        "talks": [
+                            { "time": "08:30 – 08:45", "title": "Updated Stray Light Induced Noise Simulations in the Einstein Telescope main Arms", "speakers": ["Marc Andrés-Carcasona", "Mario Martinez"] },
+                            { "time": "08:45 – 09:00", "title": "First demonstration of tunable coherence in a power-recycled Michelson", "speakers": ["Daniel Voigt", "Oliver Gerberding"] },
+                            { "time": "09:00 – 09:15", "title": "Quantum paths for ET: challenges of quantum noise and alternative detector configurations", "speakers": ["Mikhail Korobko"] },
+                            { "time": "09:15 – 09:30", "title": "From frequency to time domain, modeling non-linear effects in gravitational wave interferometers", "speakers": ["Jonathan Perry"] },
+                            { "time": "09:30 – 09:45", "title": "Mitigation of point defects and residual non-axysimmetric aberrations on the high- reflectivity surface: challenges for the future generation test-masses", "speakers": ["Luciano Antonio Corubolo", "Maria Cifaldi"] },
+                            { "time": "09:45 – 10:00", "title": "Einstein-Podolsky-Rosen quantum entanglement for broadband quantum noise reduction in future gravitational-wave detectors", "speakers": ["Francesco De Marco"] },
+                            { "time": "10:00 – 10:15", "title": "Study of substrate and coating birefringence", "speakers": ["Guido Zavattini"] },
+                            { "time": "10:15 – 10:30", "title": "Locked cavity scan - using heterodyne detection with a phase camera", "speakers": ["Ricardo Cabrita"] },
+                            { "time": "10:30 – 10:45", "title": "Study of quantum memories for GWs", "speakers": ["Denis Martynov"] },
+                            { "time": "10:45 – 11:00", "title": "Direct measurement of squeezing phase for broadband quantum noise reduction", "speakers": ["Marc Eisenmann"] }
+                        ]
+                    },
+                    {
+                        "startTime": "09:00",
+                        "endTime": "11:00",
+                        "title": "EIB",
+                        "location": "Room 213, CNR", // PDF source implies a shared room
+                        "type": "eib"
+                    },
+                    {
+                        "startTime": "09:00",
+                        "endTime": "11:00",
+                        "title": "OSB",
+                        "location": "Rooms 215 + 216, CNR",
+                        "type": "osb",
+                        "talks": [
+                            { "time": "09:00 – 09:24", "title": "The synergy of Euclid and Einstein Telescope: cosmology with gravitational waves", "speakers": ["Andrea Cimatti"] },
+                            { "time": "09:24 – 09:48", "title": "The great synergy of ET with next-generation GRB observatories", "speakers": ["Lorenzo Amati"] },
+                            { "time": "09:48 – 10:00", "title": "ET-WST synergy for next-generation gravitational wave multi-messenger observations", "speakers": ["Sofia Bisero"] },
+                            { "time": "10:00 – 10:12", "title": "Vera Rubin Observatory and Einstein Telescope: kilonova observation strategies to optimize target-of-opportunity follow ups", "speakers": ["Nandini Hazra"] },
+                            { "time": "10:12 – 10:24", "title": "Binary Neutron Star Merger, Cosmic Rays, and Neutrinow", "speakers": ["Tomasz Bulik"] },
+                            { "time": "10:24 – 10:36", "title": "Multi-messenger observations in the Einstein Telescope era: binary neutron star and black hole - neutron star mergers", "speakers": ["Alberto Colombo"] },
+                            { "time": "10:36 – 10:48", "title": "Model-independent constraints in the context of multi-messenger cosmology", "speakers": ["Andrea Cozzumbo"] },
+                            { "time": "10:48 – 11:00", "title": "The combination of ET and WST for future generation standard sirens analysis", "speakers": ["Michele Moresco"] }
+                        ]
+                    },
+                    {
+                        "startTime": "11:00",
+                        "endTime": "11:30",
+                        "title": "Coffee break 🍵",
+                        "location": "CNR - Bologna Research Area",
+                        "type": "break"
+                    },
+                    {
+                        "startTime": "11:30",
+                        "endTime": "13:00",
+                        "title": "EIB",
+                        "location": "Room 213, CNR", // PDF source implies a shared room
+                        "type": "eib"
+                    },
+                    {
+                        "startTime": "11:30",
+                        "endTime": "13:00",
+                        "title": "ISB",
+                        "location": "Plenary Room, CNR", // PDF source implies a shared room
+                        "type": "isb",
+                        "talks": [
+                            { "time": "11:30 – 11:45", "title": "Measuring the mechanical and optical losses of coatings in cryogenic conditions using an optomechanical cavity", "speakers": ["Nicole Busdon"] },
+                            { "time": "11:45 – 12:00", "title": "CAOS: Mechanical details and studies of the Vacuum Towers under construction.", "speakers": ["Gabriele Capoccia"] },
+                            { "time": "12:00 – 12:15", "title": "Low energy electrons for frost and electrostatic charging mitigation in future gravitational wave detectors: a status report", "speakers": ["Luisa Spallino"] },
+                            { "time": "12:15 – 12:30", "title": "First Cooling of the Refrigeration Line Designed for the Cryogenic Payload in the ARC Laboratory", "speakers": ["Marco Ricci"] },
+                            { "time": "12:30 – 12:45", "title": "Measuring the Volatile Residue of Hydrocarbons in ET: the CRDS UHV System at the CIRCE Laboratories", "speakers": ["Aniello Grado", "Emanuele Tofani", "Stefania Gravina"] },
+                            { "time": "12:45 – 13:00", "title": "Cryogenic Instrument Science Development", "speakers": ["Andrew Spencer"] }
+                        ]
+                    },
+                    {
+                        "startTime": "11:30",
+                        "endTime": "13:00", // PDF implies talks end 13:06
+                        "title": "OSB",
+                        "location": "Rooms 215 + 216, CNR",
+                        "type": "osb",
+                        "talks": [
+                            { "time": "11:30 – 11:42", "title": "Post-Newtonian and Numerical Waveform Hybridization: Compatibility and Development", "speakers": ["Balázs Kacskovics"] },
+                            { "time": "11:42 – 11:54", "title": "Modeling matter(s) in SEOBNRv5THM: Generating fast and accurate effective-one-body waveforms for spin-aligned binary neutron stars", "speakers": ["Marcus Haberland"] },
+                            { "time": "11:54 – 12:06", "title": "Tidal heating as probe of black hole horizon", "speakers": ["Sayak Datta"] },
+                            { "time": "12:06 – 12:18", "title": "Probing the maximum temperature ever reached in the universe with ET", "speakers": ["Simona Procacci"] },
+                            { "time": "12:18 – 12:30", "title": "Continuous wave search with Einstein Telescope: impact of an astrophysical background from coalescing binaries.", "speakers": ["Elena Codazzo"] },
+                            { "time": "12:30 – 12:42", "title": "Low frequencies, long observing runs and young unknown neutron stars: challenges for future continuous gravitational wave searches.", "speakers": ["Lorenzo Pierini"] },
+                            { "time": "12:42 – 12:54", "title": "Core-Collapse detection rates from Einstein Telescope", "speakers": ["Ines Giudice"] },
+                            { "time": "12:54 – 13:06", "title": "Core-Collapse Supernovae: Future Synergy Between LSST and ET", "speakers": ["Andrea Simongini", "Fabio Ragosta", "Silvia Piranomonte"] }
+                        ]
+                    },
+                    {
+                        "startTime": "13:00", // PDF: 13:06
+                        "endTime": "14:30",
+                        "title": "Lunch 🍝",
+                        "location": "CNR - Bologna Research Area",
+                        "type": "break"
+                    },
+                    {
+                        "startTime": "14:30",
+                        "endTime": "16:00",
+                        "title": "Communications",
+                        "location": "Room 213, CNR", // PDF source implies a shared room
+                        "type": "plenary" // Assuming general comms are plenary
+                    },
+                    {
+                        "startTime": "14:30",
+                        "endTime": "16:00",
+                        "title": "ISB",
+                        "location": "Plenary Room, CNR", // PDF source implies a shared room
+                        "type": "isb"
+                    },
+                    {
+                        "startTime": "14:30",
+                        "endTime": "16:00", // PDF implies talks end 15:54
+                        "title": "OSB",
+                        "location": "Rooms 215 + 216, CNR",
+                        "type": "osb",
+                        "talks": [
+                            { "time": "14:30 – 14:42", "title": "Spectral density of astrophysical stochastic backgrounds", "speakers": ["Enis Belgacem"] },
+                            { "time": "14:42 – 14:54", "title": "Characterizing the detectability of cosmological backgrounds at third-generation detectors", "speakers": ["Niccolò Muttoni"] },
+                            { "time": "14:54 – 15:06", "title": "Tainted Love: Systematic biases from ignoring environmental tidal effects in gravitational wave observations", "speakers": ["Francesco Iacovelli"] },
+                            { "time": "15:06 – 15:18", "title": "Characterizing, Not Just Detecting: Bayesian Neural Networks for Gravitational-Wave Physics", "speakers": ["Costantino Pacilio"] },
+                            { "time": "15:30 – 15:42", "title": "Challenges in stochastic background searches in the first ET MDC", "speakers": ["Michael Ebersold"] },
+                            { "time": "15:42 – 15:54", "title": "The null stream of the Einstein Telescope in its triangular configuration", "speakers": ["Jan Harms"] }
+                        ]
+                    },
+                    {
+                        "startTime": "16:00",
+                        "endTime": "16:30",
+                        "title": "Coffee break 🍵",
+                        "location": "CNR - Bologna Research Area",
+                        "type": "break"
+                    },
+                    {
+                        "startTime": "16:30",
+                        "endTime": "18:30",
+                        "title": "Communications",
+                        "location": "Room 213, CNR", // PDF source implies a shared room
+                        "type": "plenary"
+                    },
+                    {
+                        "startTime": "16:30",
+                        "endTime": "18:30",
+                        "title": "ISB",
+                        "location": "Plenary Room, CNR", // PDF source implies a shared room
+                        "type": "isb"
+                    },
+                    {
+                        "startTime": "16:30",
+                        "endTime": "18:30", // PDF implies talks end 17:54
+                        "title": "OSB",
+                        "location": "Rooms 215 + 216, CNR",
+                        "type": "osb",
+                        "talks": [
+                            { "time": "16:30 – 16:42", "title": "Null Stream Based Glitch Mitigation for Gravitational Wave Parameter Estimation", "speakers": ["Harsh Narola"] },
+                            { "time": "16:42 – 16:54", "title": "DeepExtractor: Time-domain reconstruction of signals and glitches in gravitational wave data with deep learning", "speakers": ["Tom Dooney"] },
+                            { "time": "16:54 – 17:06", "title": "PINNGraPE: Physics-Informed Neural Network for Gravitational-wave Parameter Estimation with unmodeled search algorithms", "speakers": ["Matteo Scialpi"] },
+                            { "time": "17:06 – 17:18", "title": "A weakly-modeled search for compact binary coalescences in the Einstein Telescope", "speakers": ["Adrian Macquet"] },
+                            { "time": "17:18 – 17:30", "title": "Fast and accurate parameter estimation of high-redshift sources with the Einstein Telescope", "speakers": ["Filippo Santoliquido"] },
+                            { "time": "17:30 – 17:42", "title": "Overlapping signals in 3G detectors: an approach based on Transformers", "speakers": ["Lucia Papalini"] },
+                            { "time": "17:42 – 17:54", "title": "Scalable Bayesian Inference for 3G Gravitational Wave Observatories: Leveraging Normalizing Flows and Hardware Acceleration", "speakers": ["Thibeau Wouters"] }
+                        ]
+                    },
+                    {
+                        "startTime": "19:30",
+                        "endTime": "23:00",
+                        "title": "Social Dinner",
+                        "location": "Palazzo Re Enzo - Piazza del Nettuno, 1, 40124 Bologna BO",
+                        "type": "social"
+                    }
+                ]
+            },
+            "thursday": {
+                "date": "Thursday 29 May",
+                "sessions": [
+                    {
+                        "startTime": "09:00",
+                        "endTime": "11:05",
+                        "title": "Plenary",
+                        "location": "Plenary Room, CNR",
+                        "type": "plenary",
+                        "description": "Welcome + ET Status",
+                        "talks": [
+                            { "time": "09:00 – 09:05", "title": "Welcome by Deputy Rector of the University of Bologna", "speakers": ["Simona Tondelli"] },
+                            { "time": "09:05 – 09:10", "title": "Welcome by the Vice President of INFN", "speakers": ["Marco Pallavicini"] },
+                            { "time": "09:10 – 09:15", "title": "Welcome by President of INAF", "speakers": ["Roberto Ragazzoni"] },
+                            { "time": "09:15 – 09:20", "title": "Welcome by the President of INGV", "speakers": ["Fabio Florindo"] },
+                            { "time": "09:20 – 09:40", "title": "ET Status and Challenges", "speakers": ["Harald Lueck", "Michele Punturo"] },
+                            { "time": "09:40 – 09:55", "title": "ETC organization", "speakers": ["Eugenio Coccia"] },
+                            { "time": "09:55 – 10:25", "title": "ET science (blue book)", "speakers": ["Archisman Ghosh", "Marica Branchesi", "Michele Maggiore"] },
+                            { "time": "10:25 – 10:45", "title": "OSB work for the Task Force", "speakers": ["Ulyana Dupletsa", "Valeria Sequino"] },
+                            { "time": "10:45 – 11:05", "title": "ET Coordinators Update", "speakers": ["Antonio Zoccoli", "Jorgen D'Hondt"] }
+                        ]
+                    },
+                    {
+                        "startTime": "11:05",
+                        "endTime": "11:30",
+                        "title": "Coffee break 🍵",
+                        "location": "CNR - Bologna Research Area",
+                        "type": "break"
+                    },
+                    {
+                        "startTime": "11:30",
+                        "endTime": "13:15",
+                        "title": "Plenary",
+                        "location": "Plenary Room, CNR",
+                        "type": "plenary",
+                        "description": "Welcome + ET Status", // Description from PDF matches
+                        "talks": [
+                            { "time": "11:30 – 11:50", "title": "LISA", "speakers": ["Jonathan Gair"] },
+                            { "time": "11:50 – 12:10", "title": "CTA", "speakers": ["Roberta Zanin"] },
+                            { "time": "12:10 – 12:30", "title": "KM3NeT", "speakers": ["Marco Circella"] },
+                            { "time": "12:30 – 12:55", "title": "ESO", "speakers": ["Mariya Lyubenova"] },
+                            { "time": "12:55 – 13:15", "title": "Cosmic Explorer", "speakers": ["Matthew Evans"] }
+                        ]
+                    },
+                    {
+                        "startTime": "13:15",
+                        "endTime": "14:45",
+                        "title": "Lunch 🍝",
+                        "location": "CNR - Bologna Research Area",
+                        "type": "break"
+                    },
+                    {
+                        "startTime": "14:45",
+                        "endTime": "16:45",
+                        "title": "Plenary",
+                        "location": "Plenary Room, CNR",
+                        "type": "plenary",
+                        "description": "Welcome + ET Status", // Description from PDF matches
+                        "talks": [
+                            { "time": "14:45 – 15:10", "title": "ET-PP update", "speakers": ["Mario Martinez"] },
+                            { "time": "15:10 – 15:30", "title": "ETO Design Task Force update", "speakers": ["Fiodor Sorrentino"] },
+                            { "time": "15:30 – 15:50", "title": "ETO PO update: \"The Project Office activities, working together...\"" },
+                            { "time": "15:50 – 16:10", "title": "Activities of the ETO Engineering Department" },
+                            { "time": "16:10 – 16:45", "title": "ETO Directors' update", "speakers": ["Andreas Freise", "Fernando Ferroni"] }
+                        ]
+                    },
+                    {
+                        "startTime": "16:45",
+                        "endTime": "17:05",
+                        "title": "Coffee break 🍵",
+                        "location": "CNR - Bologna Research Area",
+                        "type": "break"
+                    },
+                    {
+                        "startTime": "17:05",
+                        "endTime": "18:35",
+                        "title": "Plenary",
+                        "location": "Plenary Room, CNR",
+                        "type": "plenary",
+                        "description": "Welcome + ET Status", // Description from PDF matches
+                        "talks": [
+                            { "time": "17:05 – 17:35", "title": "Specific Boards - EIB", "speakers": ["Patrice Verdier", "Stefano Bagnasco"] },
+                            { "time": "17:35 – 17:55", "title": "Specific Boards - ISB", "speakers": ["Jan Harms", "Stefan Hild"] },
+                            { "time": "17:55 – 18:15", "title": "Specific Boards - ET-LF tower integration update", "speakers": ["Steffen Grohmann"] },
+                            { "time": "18:15 – 18:35", "title": "ET Sensitivity Evolution", "speakers": ["Mikhail Korobko"] }
+                        ]
+                    },
+                    {
+                        "startTime": "21:00",
+                        "endTime": "23:00",
+                        "title": "Public Conference (in italian)",
+                        "location": "Cinema Modernissimo - Piazza Re Enzo, 40125 Bologna BO",
+                        "type": "social"
+                    }
+                ]
+            },
+            "friday": {
+                "date": "Friday 30 May",
+                "sessions": [
+                    {
+                        "startTime": "09:00",
+                        "endTime": "11:10",
+                        "title": "Plenary",
+                        "location": "Plenary Room, CNR",
+                        "type": "plenary",
+                        "description": "Welcome + ET Status", // Description from PDF matches
+                        "talks": [
+                            { "time": "09:00 – 09:20", "title": "Sites - SCB" },
+                            { "time": "09:20 – 09:40", "title": "Sites - EMR" },
+                            { "time": "09:40 – 10:00", "title": "Sites - Sardinia", "speakers": ["Giovanni Bisoffi"] },
+                            { "time": "10:00 – 10:20", "title": "Sites - Lusatia", "speakers": ["Günther Hasinger"] },
+                            { "time": "10:20 – 10:40", "title": "ET Data - Mock Data Challenges", "speakers": ["Archisman Ghosh"] },
+                            { "time": "10:40 – 10:45", "title": "ET Data - ET Dat Access Policy and its implementation" },
+                            { "time": "10:45 – 11:10", "title": "Discussion on ET Data Access", "speakers": [] }
+                        ]
+                    },
+                    {
+                        "startTime": "11:10",
+                        "endTime": "11:40",
+                        "title": "Coffee break 🍵",
+                        "location": "CNR - Bologna Research Area",
+                        "type": "break"
+                    },
+                    {
+                        "startTime": "11:40",
+                        "endTime": "12:35",
+                        "title": "Plenary",
+                        "location": "Plenary Room, CNR",
+                        "type": "plenary",
+                        "description": "Welcome + ET Status", // Description from PDF matches
+                        "talks": [
+                            { "time": "11:40 – 12:00", "title": "ET Data - EIB: Tools for multi messenger", "speakers": ["Steven Schramm"] },
+                            { "time": "12:00 – 12:15", "title": "Poster award talk by previous prize winner", "speakers": ["Francesca Spada"] },
+                            { "time": "12:15 – 12:20", "title": "Announcement of Bologne Symposium oster Prize winners" }, // PDF spelling "Bologne"
+                            { "time": "12:20 – 12:35", "title": "Conclusions" }
+                        ]
+                    },
+                    {
+                        "startTime": "12:35",
+                        "endTime": "13:05",
+                        "title": "End of ET Symposium",
+                        "location": "CNR - Bologna Research Area",
+                        "type": "plenary"
+                    }
+                ]
+            }
+        };
+
+        // For testing: Set to true to simulate the current time for testing
+        const testMode = false; // Set to false for production, true for testing specific times
+        const testTime = new Date('2025-05-26T16:10:00'); // Test with Monday, 16:10 (4:10 PM)
+        
+        // Function to generate day navigation buttons
+        function generateDayNavigation() {
+            const navContainer = document.getElementById('days-navigation');
+            let currentDayKey = testMode ? getDayKeyFromDate(testTime) : getCurrentDayId();
+            
+            // If currentDayKey is undefined (e.g. weekend), default to first day in scheduleData
+            if (!scheduleData[currentDayKey]) {
+                currentDayKey = Object.keys(scheduleData)[0];
+            }
+
+            for (const dayId in scheduleData) {
+                const dayData = scheduleData[dayId];
+                const button = document.createElement('button');
+                button.className = `day-btn ${dayId === currentDayKey ? 'active' : ''}`;
+                
+                const span = document.createElement('span');
+                span.textContent = dayData.date;
+                button.appendChild(span);
+                
+                button.onclick = function(event) { showDay(dayId, event); };
+                navContainer.appendChild(button);
+            }
+            
+            generateSchedule(currentDayKey);
+        }
+
+        function getDayKeyFromDate(dateObj) {
+            const dayMap = { 1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday' };
+            return dayMap[dateObj.getDay()];
+        }
+        
+        function getCurrentDayId() {
+            const now = new Date();
+            // Ensure we are within the symposium week range for auto-selection
+            const symposiumStartDate = new Date('2025-05-26T00:00:00');
+            const symposiumEndDate = new Date('2025-05-30T23:59:59');
+
+            if (now >= symposiumStartDate && now <= symposiumEndDate) {
+                return getDayKeyFromDate(now);
+            }
+            return Object.keys(scheduleData)[0]; // Default to the first available day
+        }
+        
+        function generateSchedule(dayId) {
+            const container = document.getElementById('schedule-container');
+            container.innerHTML = ''; 
+            
+            const dayData = scheduleData[dayId];
+            if (!dayData) return;
+            
+            const dayContent = document.createElement('div');
+            dayContent.id = dayId;
+            dayContent.className = 'day-schedule active';
+            
+            const timeGroups = groupSessionsByTime(dayData.sessions);
+            
+            for (const startTime in timeGroups) {
+                const timeSlot = document.createElement('div');
+                timeSlot.className = 'time-slot';
+                
+                let latestEndTime = timeGroups[startTime][0].endTime;
+                timeGroups[startTime].forEach(session => {
+                    if (session.endTime > latestEndTime) {
+                        latestEndTime = session.endTime;
+                    }
+                });
+                timeSlot.setAttribute('data-end-time', latestEndTime);
+                
+                const timeLabel = document.createElement('div');
+                timeLabel.className = 'time-label';
+                const timeStartSpan = document.createElement('span'); // Renamed for clarity
+                timeStartSpan.className = 'time-start';
+                timeStartSpan.textContent = startTime;
+                timeLabel.appendChild(timeStartSpan);
+                timeSlot.appendChild(timeLabel);
+                
+                const sessionsContainer = document.createElement('div');
+                sessionsContainer.className = 'concurrent-sessions';
+                
+                const numSessionsInGroup = timeGroups[startTime].length;
+                if (numSessionsInGroup === 1) {
+                    sessionsContainer.classList.add('has-one-item');
+                } else if (numSessionsInGroup === 2) {
+                    sessionsContainer.classList.add('has-two-items');
+                } else if (numSessionsInGroup === 3) {
+                    sessionsContainer.classList.add('has-three-items');
+                }
+                // For more than 3, they will wrap naturally with the default flex settings.
+                
+                timeGroups[startTime].forEach(sessionData => {
+                    const sessionBox = createSessionBox(sessionData);
+                    sessionsContainer.appendChild(sessionBox);
+                });
+                
+                timeSlot.appendChild(sessionsContainer);
+                dayContent.appendChild(timeSlot);
+            }
+            
+            container.appendChild(dayContent);
+            highlightCurrentSession();
+        }
+        
+        function groupSessionsByTime(sessions) {
+            const groups = {};
+            sessions.forEach(session => {
+                if (!groups[session.startTime]) {
+                    groups[session.startTime] = [];
+                }
+                groups[session.startTime].push(session);
+            });
+            return groups;
+        }
+        
+        function createSessionBox(sessionData) {
+            const sessionBox = document.createElement('div');
+            sessionBox.className = `session ${sessionData.type || ''}`;
+            sessionBox.setAttribute('data-start', sessionData.startTime);
+            sessionBox.setAttribute('data-end', sessionData.endTime);
+            
+            const titleContainer = document.createElement('div');
+            titleContainer.className = 'session-title';
+            const titleText = document.createElement('span');
+            titleText.textContent = sessionData.title;
+            titleContainer.appendChild(titleText);
+            sessionBox.appendChild(titleContainer);
+            
+            if (sessionData.location) {
+                const locationElement = document.createElement('div');
+                locationElement.className = 'session-place';
+                locationElement.textContent = sessionData.location;
+                sessionBox.appendChild(locationElement);
+            }
+            
+            if (hasDetails(sessionData)) {
+                const detailsSection = document.createElement('div');
+                detailsSection.className = 'session-details';
+                
+                if (sessionData.description) {
+                    const descElement = document.createElement('div');
+                    descElement.className = 'session-description';
+                    descElement.textContent = sessionData.description;
+                    detailsSection.appendChild(descElement);
+                }
+                
+                if (sessionData.talks && sessionData.talks.length > 0) {
+                    const talksList = document.createElement('div');
+                    talksList.className = 'talks-list';
+                    sessionData.talks.forEach(talk => {
+                        const talkItem = document.createElement('div');
+                        talkItem.className = 'speaker-item'; // This div will contain the single line of talk info
+
+                        // Add time if available
+                        if (talk.time) {
+                            const timeSpan = document.createElement('span');
+                            timeSpan.className = 'speaker-time';
+                            timeSpan.textContent = talk.time + " "; // Add a space after time
+                            talkItem.appendChild(timeSpan);
+                        }
+
+                        // Add talk title in italics
+                        const titleElement = document.createElement('em'); // Use <em> for italics
+                        titleElement.className = 'talk-title'; // Keep class for any existing/future specific styling
+                        titleElement.textContent = talk.title;
+                        talkItem.appendChild(titleElement);
+
+                        // Add speakers in bold if available
+                        if (talk.speakers && talk.speakers.length > 0) {
+                            const speakerElement = document.createElement('strong'); // Use <strong> for bold
+                            speakerElement.className = 'speaker-name'; // Keep class for any existing/future specific styling
+                            // Add a space before the speaker info for separation
+                            speakerElement.textContent = " " + (talk.speakers.length > 1 ? "s" : "") + " " + talk.speakers.join(', ');
+                            talkItem.appendChild(speakerElement);
+                        }
+                        
+                        talksList.appendChild(talkItem);
+                    });
+                    detailsSection.appendChild(talksList);
+                }
+                
+                if (sessionData.conveners && sessionData.conveners.length > 0) {
+                    const convenerElement = document.createElement('div');
+                    convenerElement.className = 'session-convener';
+                    convenerElement.textContent = "Convener" + (sessionData.conveners.length > 1 ? "s" : "") + ": " + sessionData.conveners.join(', ');
+                    detailsSection.appendChild(convenerElement);
+                }
+                sessionBox.appendChild(detailsSection);
+                
+                // Add click event to expand/collapse if it's not a break session
+                if (sessionData.type !== 'break') {
+                    sessionBox.addEventListener('click', function() {
+                        const parentConcurrentSessions = this.parentElement;
+                        const isCurrentlyExpanded = this.classList.contains('expanded');
+
+                        // If this session is about to be expanded, collapse any other already expanded session in this group
+                        if (!isCurrentlyExpanded) {
+                            parentConcurrentSessions.querySelectorAll('.session.expanded').forEach(expandedSibling => {
+                                expandedSibling.classList.remove('expanded');
+                            });
+                        }
+                        
+                        // Toggle the clicked session's expansion state
+                        this.classList.toggle('expanded');
+                        
+                        // Update the parent container's class to reflect if any child is expanded
+                        if (parentConcurrentSessions.querySelector('.session.expanded')) {
+                            parentConcurrentSessions.classList.add('child-is-expanded');
+                        } else {
+                            parentConcurrentSessions.classList.remove('child-is-expanded');
+                        }
+                    });
+                } else {
+                    sessionBox.style.cursor = 'default'; // Breaks are not interactive
+                }
+            } else if (sessionData.type === 'break') {
+                 sessionBox.style.cursor = 'default'; // Breaks without details are also not interactive
+            }
+            
+            return sessionBox;
+        }
+        
+        function hasDetails(sessionData) {
+            return sessionData.type !== 'break' && ( // Break sessions don't have expandable details
+                (sessionData.talks && sessionData.talks.length > 0) ||
+                (sessionData.conveners && sessionData.conveners.length > 0) ||
+                sessionData.description
+            );
+        }
+        
+        function showDay(dayId, event) {
+            generateSchedule(dayId);
+            const dayButtons = document.querySelectorAll('.day-btn');
+            dayButtons.forEach(button => button.classList.remove('active'));
+            
+            if (event && event.currentTarget) { // Use currentTarget for the button itself
+                event.currentTarget.classList.add('active');
+            } else {
+                // Fallback if event is not provided (e.g., initial load)
+                const targetButton = Array.from(dayButtons).find(btn => btn.textContent.includes(scheduleData[dayId].date.split(' ')[0])); // Match by day name part
+                if (targetButton) targetButton.classList.add('active');
+            }
+        }
+        
+        function highlightCurrentSession() {
+            document.querySelectorAll('.current-session').forEach(el => el.classList.remove('current-session'));
+            
+            let now = testMode ? testTime : new Date();
+            const currentDayKey = getDayKeyFromDate(now);
+            const activeDayId = document.querySelector('.day-schedule.active')?.id;
+
+            // Only highlight if the current day is selected and within symposium dates
+            const symposiumStartDate = new Date('2025-05-26T00:00:00');
+            const symposiumEndDate = new Date('2025-05-30T23:59:59');
+
+            if (currentDayKey && activeDayId === currentDayKey && now >= symposiumStartDate && now <= symposiumEndDate) {
+                const currentHour = now.getHours();
+                const currentMinutes = now.getMinutes();
+                
+                document.querySelectorAll('.time-slot').forEach(timeSlot => {
+                    const sessionsInSlot = timeSlot.querySelectorAll('.session');
+                    sessionsInSlot.forEach(session => {
+                        if (session.classList.contains('break')) return; // Skip breaks
+
+                        const sessionStartStr = session.getAttribute('data-start');
+                        const sessionEndStr = session.getAttribute('data-end');
+                        
+                        if (sessionStartStr && sessionEndStr) {
+                            let [sStartHour, sStartMinute] = parseTime(sessionStartStr);
+                            let [sEndHour, sEndMinute] = parseTime(sessionEndStr);
+                            
+                            if (isTimeBetween(currentHour, currentMinutes, sStartHour, sStartMinute, sEndHour, sEndMinute)) {
+                                session.classList.add('current-session');
+                                
+                                // Auto-expand current, non-break session if it has details and isn't already part of an expanded group
+                                if (hasDetails(getSessionDataFromElement(session)) && !session.parentElement.classList.contains('child-is-expanded')) {
+                                    // Simulate click to ensure proper handling of other sessions
+                                    session.click();
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+        }
+        
+        function getSessionDataFromElement(sessionElement) {
+            const title = sessionElement.querySelector('.session-title span').textContent;
+            const dayId = sessionElement.closest('.day-schedule')?.id; // Added optional chaining
+            if (!dayId) return null;
+
+            const day = scheduleData[dayId];
+            if (day && day.sessions) { // Check if day.sessions exists
+                // Find session matching title and start time for more uniqueness
+                const startTime = sessionElement.getAttribute('data-start');
+                return day.sessions.find(s => s.title === title && s.startTime === startTime);
+            }
+            return null;
+        }
+        
+        function parseTime(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return [hours, minutes];
+        }
+        
+        function isTimeBetween(currentHour, currentMinutes, startHour, startMinute, endHour, endMinute) {
+            const currentTotalMinutes = currentHour * 60 + currentMinutes;
+            const startTotalMinutes = startHour * 60 + startMinute;
+            let endTotalMinutes = endHour * 60 + endMinute;
+
+            // Handle sessions that span across midnight (e.g., 23:00 - 01:00)
+            // Though not typical for this schedule, good for robustness
+            if (endTotalMinutes < startTotalMinutes) { // Spans midnight
+                return currentTotalMinutes >= startTotalMinutes || currentTotalMinutes < endTotalMinutes;
+            }
+            return currentTotalMinutes >= startTotalMinutes && currentTotalMinutes < endTotalMinutes; // Use < for end time
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            generateDayNavigation();
+            window.etScheduleData = scheduleData; // Make data globally accessible if needed
+            
+            // Initial highlight and then set interval
+            highlightCurrentSession(); 
+            setInterval(highlightCurrentSession, 60000); // Refresh every minute
+        });
+    </script>
+</body>
+</html>
+

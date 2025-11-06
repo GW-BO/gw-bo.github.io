@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CNR Conference Check-in</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    
+    <!-- Google API Library -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    
+    <!-- QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
+    <style>
+        /* Modern, clean styling */
+        :root {
+            --primary-color: #1a73e8;
+            --success-color: #34a853;
+            --warning-color: #fbbc04;
+            --error-color: #ea4335;
+            --text-color: #202124;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --border-color: #dadce0;
+        }
+        
+        body {
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        
+        h1, h2, h3 {
+            margin: 0;
+            font-weight: 400;
+        }
+        
+        .container {
+            flex: 1;
+            padding: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+        }
+        
+        .button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+        }
+        
+        .button:hover {
+            background-color: #1765cc;
+        }
+        
+        .button:disabled {
+            background-color: #9aa0a6;
+            cursor: not-allowed;
+        }
+        
+        .button-secondary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .button-secondary:hover {
+            background-color: #f1f3f4;
+        }
+        
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        #login-view, #app-view {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        #scanner {
+            position: relative;
+            width: 100%;
+            background-color: black;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+        
+        #scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        
+        #scanner-target {
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(255,255,255,0.7);
+            border-radius: 12px;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 16px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 300;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #5f6368;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .button-group .button {
+            flex: 1;
+        }
+        
+        .result {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .result-success {
+            background-color: #e6f4ea;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .result-warning {
+            background-color: #fef7e0;
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .result-error {
+            background-color: #fce8e6;
+            border-left: 4px solid var(--error-color);
+        }
+        
+        .result-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+        }
+        
+        .recent-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .recent-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+        
+        .recent-name {
+            font-weight: 500;
+        }
+        
+        .recent-time {
+            font-size: 0.8rem;
+            color: #5f6368;
+        }
+        
+        .offline-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: #fef7e0;
+            color: #b06000;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+        
+        .sync-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .spinner {
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 2px solid white;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            padding: 16px;
+            text-align: center;
+            color: #5f6368;
+            font-size: 0.8rem;
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Loading spinner */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading indicator -->
+    <div id="loading">
+        <div class="loader"></div>
+    </div>
+    
+    <header>
+        <h1>CNR Conference Check-in</h1>
+    </header>
+    
+    <div class="container">
+        <!-- Login View -->
+        <div id="login-view">
+            <div class="card">
+                <h2 class="card-title">Sign in with Google</h2>
+                <p>Sign in to access your spreadsheet for check-in management:</p>
+                
+                <div class="input-group">
+                    <label for="spreadsheet-url">Google Spreadsheet URL</label>
+                    <input type="text" id="spreadsheet-url" placeholder="https://docs.google.com/spreadsheets/d/...">
+                </div>
+                
+                <div class="input-group">
+                    <label for="sheet-name">Sheet Name (tab name)</label>
+                    <input type="text" id="sheet-name" placeholder="Sheet1" value="Sheet1">
+                </div>
+                
+                <div class="input-group">
+                    <label for="checkin-column">Check-in Time Column (e.g., "D" for column D)</label>
+                    <input type="text" id="checkin-column" placeholder="E" value="E">
+                </div>
+                
+                <button id="authorize-button" class="button">
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main App View (hidden until logged in) -->
+        <div id="app-view" class="hidden">
+            <!-- Stats -->
+            <div class="stats-container">
+                <div class="card stat-card">
+                    <div class="stat-value" id="total-count">0</div>
+                    <div class="stat-label">Total Check-ins</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value" id="pending-count">0</div>
+                    <div class="stat-label">Pending Uploads</div>
+                </div>
+            </div>
+            
+            <!-- Control Buttons -->
+            <div class="button-group">
+                <button id="start-button" class="button">Start Scanner</button>
+                <button id="sync-button" class="button button-secondary sync-button" disabled>
+                    <span>Sync</span>
+                    <span id="sync-spinner" class="spinner hidden"></span>
+                </button>
+            </div>
+            
+            <!-- Scanner -->
+            <div id="scanner" class="card hidden">
+                <div id="reader"></div>
+                <div id="scanner-overlay">
+                    <div id="scanner-target"></div>
+                </div>
+            </div>
+            
+            <!-- Result Display -->
+            <div id="result" class="result hidden">
+                <div class="result-icon" id="result-icon"></div>
+                <div>
+                    <div id="result-name" style="font-weight: 500;"></div>
+                    <div id="result-message" style="font-size: 0.9rem;"></div>
+                </div>
+            </div>
+            
+            <!-- Recent Check-ins -->
+            <div class="card">
+                <h3 class="card-title">Recent Check-ins</h3>
+                <ul class="recent-list" id="recent-list">
+                    <li class="recent-item">No check-ins yet</li>
+                </ul>
+            </div>
+            
+            <!-- Status -->
+            <div class="button-group">
+                <button id="sign-out-button" class="button button-secondary">Sign Out</button>
+                <button id="export-button" class="button">Export CSV</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        CNR Conference Check-in System | Connected to: <span id="spreadsheet-name">Not connected</span>
+    </footer>
+    
+    <script>
+        // App configuration
+        const CLIENT_ID = '824264185206-jcr3n6f2dpahsfjtrtc48t2a6i58j5k6.apps.googleusercontent.com';
+        const API_KEY = 'AIzaSyBAafyQLLkLrLvKS-LKbYQhzKlNYmfjV8Q';
+        const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+        
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+        
+        // App state
+        let spreadsheetId = '';
+        let sheetName = '';
+        let checkinColumn = '';
+        let isAuthorized = false;
+        let scannerActive = false;
+        let html5QrCode;
+        let checkins = [];
+        let pendingUploads = [];
+        
+        document.addEventListener('DOMContentLoaded', initializeApp);
+        
+        // Initialize the application
+        function initializeApp() {
+            // Restore settings from localStorage if available
+            if (localStorage.getItem('spreadsheetUrl')) {
+                document.getElementById('spreadsheet-url').value = localStorage.getItem('spreadsheetUrl');
+            }
+            if (localStorage.getItem('sheetName')) {
+                document.getElementById('sheet-name').value = localStorage.getItem('sheetName');
+            }
+            if (localStorage.getItem('checkinColumn')) {
+                document.getElementById('checkin-column').value = localStorage.getItem('checkinColumn');
+            }
+            
+            // Load checkins from localStorage
+            loadCheckinsFromStorage();
+            
+            // Set up button event listeners
+            document.getElementById('authorize-button').addEventListener('click', handleAuthClick);
+            document.getElementById('start-button').addEventListener('click', toggleScanner);
+            document.getElementById('sync-button').addEventListener('click', syncPendingUploads);
+            document.getElementById('sign-out-button').addEventListener('click', handleSignoutClick);
+            document.getElementById('export-button').addEventListener('click', exportCheckins);
+            
+            // Load the Google API client libraries
+            loadGapiClient();
+        }
+        
+        // Load Google API Client Library
+        function loadGapiClient() {
+            gapi.load('client', initializeGapiClient);
+        }
+        
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: [DISCOVERY_DOC],
+            });
+            gapiInited = true;
+            maybeEnableButtons();
+            
+            // Load the Google Identity Services SDK
+            loadGisClient();
+        }
+        
+        function loadGisClient() {
+            // For improved security and validation, we use client ID from login
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '', // defined later
+            });
+            gisInited = true;
+            maybeEnableButtons();
+        }
+        
+        function maybeEnableButtons() {
+            if (gapiInited && gisInited) {
+                document.getElementById('authorize-button').disabled = false;
+                hideLoading();
+            }
+        }
+        
+        function handleAuthClick() {
+            // Save settings to localStorage
+            const spreadsheetUrl = document.getElementById('spreadsheet-url').value;
+            sheetName = document.getElementById('sheet-name').value;
+            checkinColumn = document.getElementById('checkin-column').value;
+            
+            if (!spreadsheetUrl) {
+                showResult('error', 'Please enter a spreadsheet URL');
+                return;
+            }
+            
+            // Extract spreadsheet ID from URL
+            try {
+                const urlParts = spreadsheetUrl.split('/');
+                const idIndex = urlParts.indexOf('d') + 1;
+                if (idIndex > 0 && idIndex < urlParts.length) {
+                    spreadsheetId = urlParts[idIndex];
+                    // Remove any query parameters
+                    if (spreadsheetId.includes('?')) {
+                        spreadsheetId = spreadsheetId.split('?')[0];
+                    }
+                } else {
+                    // Try direct ID
+                    spreadsheetId = spreadsheetUrl;
+                }
+            } catch (e) {
+                showResult('error', 'Invalid spreadsheet URL');
+                return;
+            }
+            
+            // Save settings
+            localStorage.setItem('spreadsheetUrl', spreadsheetUrl);
+            localStorage.setItem('sheetName', sheetName);
+            localStorage.setItem('checkinColumn', checkinColumn);
+            
+            showLoading();
+            
+            // Request an access token
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    showResult('error', 'Authentication failed: ' + resp.error);
+                    hideLoading();
+                    return;
+                }
+                
+                isAuthorized = true;
+                
+                // Verify spreadsheet access
+                try {
+                    const response = await gapi.client.sheets.spreadsheets.get({
+                        spreadsheetId: spreadsheetId
+                    });
+                    
+                    // Show spreadsheet name in footer
+                    document.getElementById('spreadsheet-name').textContent = response.result.properties.title;
+                    
+                    // Switch to app view
+                    document.getElementById('login-view').classList.add('hidden');
+                    document.getElementById('app-view').classList.remove('hidden');
+                    
+                    // Update stats
+                    updateStats();
+                    
+                    // Try to sync any pending uploads
+                    if (pendingUploads.length > 0) {
+                        document.getElementById('sync-button').disabled = false;
+                    }
+                    
+                    hideLoading();
+                } catch (err) {
+                    console.error(err);
+                    showResult('error', 'Could not access spreadsheet. Please check the URL and permissions.');
+                    hideLoading();
+                }
+            };
+            
+            if (gapi.client.getToken() === null) {
+                // Prompt the user to select a Google Account and ask for consent
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } else {
+                // Skip display of account chooser and consent dialog
+                tokenClient.requestAccessToken({prompt: ''});
+            }
+        }
+        
+        function handleSignoutClick() {
+            const token = gapi.client.getToken();
+            if (token !== null) {
+                google.accounts.oauth2.revoke(token.access_token);
+                gapi.client.setToken('');
+                isAuthorized = false;
+                
+                // Switch back to login view
+                document.getElementById('app-view').classList.add('hidden');
+                document.getElementById('login-view').classList.remove('hidden');
+                
+                // Stop the scanner if it's running
+                if (scannerActive && html5QrCode) {
+                    html5QrCode.stop();
+                    scannerActive = false;
+                    document.getElementById('scanner').classList.add('hidden');
+                    document.getElementById('start-button').textContent = 'Start Scanner';
+                }
+            }
+        }
+        
+        // Toggle scanner on/off
+        function toggleScanner() {
+            const scannerElement = document.getElementById('scanner');
+            const startButton = document.getElementById('start-button');
+            
+            if (scannerActive) {
+                // Stop scanner
+                if (html5QrCode) {
+                    html5QrCode.stop().then(() => {
+                        scannerActive = false;
+                        scannerElement.classList.add('hidden');
+                        startButton.textContent = 'Start Scanner';
+                    }).catch(err => {
+                        console.error('Error stopping scanner:', err);
+                    });
+                }
+            } else {
+                // Start scanner
+                scannerElement.classList.remove('hidden');
+                startButton.textContent = 'Stop Scanner';
+                
+                // Initialize scanner if not already done
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("reader");
+                }
+                
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    onScanSuccess,
+                    onScanFailure
+                ).then(() => {
+                    scannerActive = true;
+                }).catch(err => {
+                    console.error('Error starting scanner:', err);
+                    showResult('error', 'Could not start scanner: ' + err.message);
+                    scannerElement.classList.add('hidden');
+                    startButton.textContent = 'Start Scanner';
+                });
+            }
+        }
+        
+        // Handle successful QR code scan
+        function onScanSuccess(decodedText, decodedResult) {
+            // Pause scanner temporarily
+            if (html5QrCode) {
+                html5QrCode.pause();
+            }
+            
+            // Process the scan
+            processQRCode(decodedText);
+            
+            // Resume after 3 seconds
+            setTimeout(() => {
+                if (html5QrCode && scannerActive) {
+                    html5QrCode.resume();
+                }
+            }, 3000);
+        }
+        
+        // Handle QR code scan failure
+        function onScanFailure(error) {
+            // Deliberately ignored as it fires constantly when no QR code is found
+            console.log(error);
+        }
+        
+        // Process QR code data and update the spreadsheet
+        function processQRCode(qrText) {
+            try {
+                // Parse QR code data
+                // Expected format: name=John Doe|event=CNR Conference|row=5|id=12345
+                const data = {};
+                qrText.split('|').forEach(pair => {
+                    const [key, value] = pair.split('=');
+                    if (key && value) {
+                        data[key.trim()] = value.trim();
+                    }
+                });
+                
+                // Check if we have the required row information
+                if (!data.row) {
+                    showResult('error', 'Invalid QR Code', 'Missing row information');
+                    return;
+                }
+                
+                // Create timestamp
+                const now = new Date();
+                const timestamp = now.toLocaleString();
+                
+                // Check if already checked in today
+                const todayStr = now.toLocaleDateString();
+                const existingCheckin = checkins.find(c => 
+                    c.id === data.id && 
+                    new Date(c.timestamp).toLocaleDateString() === todayStr
+                );
+                
+                if (existingCheckin) {
+                    showResult('warning', data.name || 'Unknown Attendee', 'Already checked in today');
+                    return;
+                }
+                
+                // Add to checkins array
+                const checkin = {
+                    id: data.id,
+                    name: data.name || 'Unknown Attendee',
+                    row: data.row,
+                    timestamp: timestamp,
+                    synced: false
+                };
+                
+                checkins.unshift(checkin);
+                pendingUploads.push(checkin);
+                
+                // Save to localStorage
+                saveCheckinsToStorage();
+                
+                // Show success message
+                showResult('success', data.name || 'Unknown Attendee', 'Successfully checked in');
+                
+                // Update UI
+                updateStats();
+                updateRecentList();
+                
+                // Try to sync immediately if authenticated
+                if (isAuthorized) {
+                    document.getElementById('sync-button').disabled = false;
+                    syncPendingUploads();
+                }
+                
+            } catch (error) {
+                console.error('Error processing QR code:', error);
+                showResult('error', 'QR Code Error', error.message);
+            }
+        }
+        
+        // Sync pending uploads to Google Sheets
+        async function syncPendingUploads() {
+            if (!isAuthorized || pendingUploads.length === 0) {
+                return;
+            }
+            
+            showLoading();
+            document.getElementById('sync-spinner').classList.remove('hidden');
+            document.getElementById('sync-button').disabled = true;
+            
+            const failedUploads = [];
+            
+            for (const checkin of pendingUploads) {
+                try {
+                    // Convert the column letter to index (e.g., 'E' -> 4)
+                    const colIndex = checkinColumn.toUpperCase().charCodeAt(0) - 65;
+                    
+                    // Update the cell in the spreadsheet
+                    await gapi.client.sheets.spreadsheets.values.update({
+                        spreadsheetId: spreadsheetId,
+                        range: `${sheetName}!${checkinColumn}${checkin.row}`,
+                        valueInputOption: 'USER_ENTERED',
+                        resource: {
+                            values: [[checkin.timestamp]]
+                        }
+                    });
+                    
+                    // Mark as synced
+                    checkin.synced = true;
+                    
+                    // Update in the main array
+                    const index = checkins.findIndex(c => c.id === checkin.id && c.timestamp === checkin.timestamp);
+                    if (index !== -1) {
+                        checkins[index].synced = true;
+                    }
+                    
+                } catch (error) {
+console.error('Error updating spreadsheet:', error);
+                    failedUploads.push(checkin);
+                }
+            }
+            
+            // Update pending uploads list
+            pendingUploads = failedUploads;
+            
+            // Save updated state
+            saveCheckinsToStorage();
+            
+            // Update UI
+            updateStats();
+            updateRecentList();
+            
+            document.getElementById('sync-spinner').classList.add('hidden');
+            document.getElementById('sync-button').disabled = pendingUploads.length === 0;
+            
+            hideLoading();
+            
+            if (failedUploads.length > 0) {
+                showResult('warning', 'Sync Incomplete', `${pendingUploads.length} check-ins could not be synced. Will retry later.`);
+            } else {
+                showResult('success', 'Sync Complete', 'All check-ins have been uploaded to your spreadsheet');
+            }
+        }
+        
+        // Show result message
+        function showResult(type, name, message) {
+            const resultElement = document.getElementById('result');
+            const iconElement = document.getElementById('result-icon');
+            const nameElement = document.getElementById('result-name');
+            const messageElement = document.getElementById('result-message');
+            
+            // Set icon based on type
+            let iconSvg = '';
+            if (type === 'success') {
+                iconSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22ZM11.003 16L18.073 8.929L16.659 7.515L11.003 13.172L8.174 10.343L6.76 11.757L11.003 16Z" fill="#34a853"/></svg>';
+                resultElement.className = 'result result-success';
+            } else if (type === 'warning') {
+                iconSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z" fill="#fbbc04"/></svg>';
+                resultElement.className = 'result result-warning';
+            } else {
+                iconSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22ZM12 13.5L16.95 8.55L15.536 7.136L12 10.672L8.464 7.136L7.05 8.55L12 13.5Z" fill="#ea4335"/></svg>';
+                resultElement.className = 'result result-error';
+            }
+            
+            // Set content
+            iconElement.innerHTML = iconSvg;
+            nameElement.textContent = name;
+            messageElement.textContent = message;
+            
+            // Show the result
+            resultElement.classList.remove('hidden');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                resultElement.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // Update statistics display
+        function updateStats() {
+            const totalCount = checkins.length;
+            const pendingCount = pendingUploads.length;
+            
+            document.getElementById('total-count').textContent = totalCount;
+            document.getElementById('pending-count').textContent = pendingCount;
+            
+            // Enable/disable sync button
+            document.getElementById('sync-button').disabled = pendingCount === 0 || !isAuthorized;
+        }
+        
+        // Update recent check-ins list
+        function updateRecentList() {
+            const recentList = document.getElementById('recent-list');
+            recentList.innerHTML = '';
+            
+            if (checkins.length === 0) {
+                recentList.innerHTML = '<li class="recent-item">No check-ins yet</li>';
+                return;
+            }
+            
+            // Display the most recent 10 check-ins
+            const recentCheckins = checkins.slice(0, 10);
+            
+            recentCheckins.forEach(checkin => {
+                const item = document.createElement('li');
+                item.className = 'recent-item';
+                
+                const nameSpan = document.createElement('div');
+                nameSpan.className = 'recent-name';
+                nameSpan.textContent = checkin.name;
+                
+                const timeSpan = document.createElement('div');
+                timeSpan.className = 'recent-time';
+                timeSpan.textContent = checkin.timestamp;
+                
+                item.appendChild(nameSpan);
+                
+                // Add offline badge if not synced
+                if (!checkin.synced) {
+                    const badge = document.createElement('span');
+                    badge.className = 'offline-badge';
+                    badge.textContent = 'Pending';
+                    nameSpan.appendChild(badge);
+                }
+                
+                item.appendChild(timeSpan);
+                recentList.appendChild(item);
+            });
+        }
+        
+        // Save check-ins to localStorage
+        function saveCheckinsToStorage() {
+            localStorage.setItem('checkins', JSON.stringify(checkins));
+            localStorage.setItem('pendingUploads', JSON.stringify(pendingUploads));
+        }
+        
+        // Load check-ins from localStorage
+        function loadCheckinsFromStorage() {
+            const savedCheckins = localStorage.getItem('checkins');
+            const savedPending = localStorage.getItem('pendingUploads');
+            
+            if (savedCheckins) {
+                checkins = JSON.parse(savedCheckins);
+            }
+            
+            if (savedPending) {
+                pendingUploads = JSON.parse(savedPending);
+            }
+            
+            updateStats();
+            updateRecentList();
+        }
+        
+        // Export check-ins as CSV
+        function exportCheckins() {
+            if (checkins.length === 0) {
+                showResult('warning', 'Export Failed', 'No check-ins to export');
+                return;
+            }
+            
+            // Create CSV content
+            const headers = ['Name', 'ID', 'Timestamp', 'Row', 'Synced'];
+            const csvContent = [
+                headers.join(','),
+                ...checkins.map(checkin => [
+                    `"${checkin.name.replace(/"/g, '""')}"`,
+                    checkin.id,
+                    checkin.timestamp,
+                    checkin.row,
+                    checkin.synced ? 'Yes' : 'No'
+                ].join(','))
+            ].join('\n');
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `cnr_checkins_${formatDate(new Date())}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showResult('success', 'Export Complete', 'Check-ins exported to CSV file');
+        }
+        
+        // Format date for filename
+        function formatDate(date) {
+            return `${date.getFullYear()}-${padZero(date.getMonth() + 1)}-${padZero(date.getDate())}`;
+        }
+        
+        // Pad numbers with leading zero
+        function padZero(num) {
+            return num.toString().padStart(2, '0');
+        }
+        
+        // Show loading indicator
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        // Hide loading indicator
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0KTBB3BZ5N"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-0KTBB3BZ5N');
+    </script>
+    
+    <title>XV ET Symposium Map</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(to bottom, #3776a5 0%, #22355a 100%) !important;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        
+        .map-container {
+            position: relative;
+            height: 600px;
+            background-color: white;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+            border: none;
+        }
+        
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-width: 220px;
+        }
+        
+        .legend h3 {
+            margin-top: 0;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        
+        .info-panel {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        .info-panel h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #314b7f;
+        }
+        
+        .bus-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .bus-card {
+            flex: 1;
+            min-width: 250px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .bus-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .bus-header {
+            padding: 10px 15px;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .bus-number {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .bus-route {
+            font-size: 14px;
+            flex: 1;
+        }
+        
+        .bus-info {
+            padding: 15px;
+        }
+        
+        .bus-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .key-stops {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .key-stops h4 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+        }
+        
+        .key-stops ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 13px;
+        }
+        
+        .key-stops li {
+            margin-bottom: 3px;
+        }
+        
+        .action-button {
+            display: inline-block;
+            background-color: #1a64a0;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 12px;
+            transition: background-color 0.3s;
+        }
+        
+        .action-button:hover {
+            background-color: #1558c4;
+        }
+        
+        .directions-section {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .bus-times {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f9ff;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .bus-times h4 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+        
+        .times-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .time-slot {
+            padding: 4px;
+            background-color: #f0f4fd;
+            border-radius: 3px;
+            text-align: center;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .footer-link {
+            color: #314b7f;
+            text-decoration: none;
+        }
+        
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+        
+        
+        /* Mobile Legend Mini-Carousel */
+        @media (max-width: 768px) {
+            .legend {
+                bottom: 15px;
+                right: 10px;
+                padding: 10px;
+                max-width: none;
+                width: auto;
+                display: flex;
+                align-items: center;
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .desktop-legend {
+                display: none; /* Hide desktop legend on mobile */
+            }
+            
+            .mobile-legend {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .route-display {
+                display: flex;
+                align-items: center;
+                background-color: rgba(255, 255, 255, 0.95);
+                padding: 5px 8px;
+                border-radius: 6px;
+                min-width: 120px;
+            }
+            
+            .legend-counter {
+                margin-left: 5px;
+                font-size: 10px;
+                color: #666;
+                white-space: nowrap;
+            }
+            
+            .nav-buttons {
+                display: flex;
+                gap: 5px;
+            }
+            
+            .nav-button {
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: white;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 12px;
+                user-select: none;
+                border: 1px solid #eee;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+            
+            .nav-button:hover {
+                background-color: #f5f5f5;
+            }
+            
+            .color-box {
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+            }
+            
+            .route-name {
+                margin-left: 8px;
+                font-size: 13px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>XV ET Symposium - Bologna</h1>
+            <!-- <p>Interactive map of venues and bus lines to CNR</p> -->
+
+            <nav style="margin-top: 10px;">
+                <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 15px;">
+                    <a href="#map-frame" style="color: white; text-decoration: none; font-weight: 500; padding: 4px 8px; border-radius: 4px; background-color: rgba(255,255,255,0.1);">Map</a>
+                    <a href="#conference" style="color: white; text-decoration: none; font-weight: 500; padding: 4px 8px; border-radius: 4px; background-color: rgba(255,255,255,0.1);">Conference</a>
+                    <a href="https://indico.ego-gw.it/event/819/timetable/#all" style="color: white; text-decoration: none; font-weight: 500; padding: 4px 8px; border-radius: 4px; background-color: rgba(255,255,255,0.1);">Timetable</a>
+                    <a href="#buses" style="color: white; text-decoration: none; font-weight: 500; padding: 4px 8px; border-radius: 4px; background-color: rgba(255,255,255,0.1);">Buses</a>
+                    <a href="#ecr-event" style="color: white; text-decoration: none; font-weight: 500; padding: 4px 8px; border-radius: 4px; background-color: rgba(255,255,255,0.1);">ECR Event</a>
+                    <a href="#social-dinner" style="color: white; text-decoration: none; font-weight: 500; padding: 4px 8px; border-radius: 4px; background-color: rgba(255,255,255,0.1);">Social Dinner</a>
+                    <a href="#public-event" style="color: white; text-decoration: none; font-weight: 500; padding: 4px 8px; border-radius: 4px; background-color: rgba(255,255,255,0.1);">Public Event</a>
+                </div>
+            </nav>
+        </header>
+        
+        <div class="map-container" id="map-frame">
+            <!-- Direct link to the CNR Research Area on Google Maps -->
+            <iframe id="map" src="https://www.google.com/maps/d/embed?mid=1nyJ7894iKFFg6gBgtWQEr8KGWaCDSvo&ehbc=2E312F" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            
+            <div class="legend" id="route-legend">
+                <!-- Desktop Legend (hidden on mobile) -->
+                <div class="desktop-legend">
+                    <div class="legend-item">
+                        <div class="color-box" style="background-color: #0f9d58;"></div>
+                        <span>37 Via Gobetti - CNR</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background-color: #1a237e;"></div>
+                        <span>87 Via Gobetti - CNR</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background-color: #0288d1;"></div>
+                        <span>27A Corticella - Via Byron</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background-color: #e65100;"></div>
+                        <span>11C Arcoveggio - Giardini</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background-color: #f9a825;"></div>
+                        <span>11B Rosa Luxemburg</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background-color: #ffd600;"></div>
+                        <span>34 Ospedale Maggiore</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background-color: #9c27b0;"></div>
+                        <span>30 Via Colombo - Sostegno</span>
+                    </div>
+                    <div class="legend-item legend-hint">
+                        <span><i>Open the side panel (top left) to select a specific bus line.</i></span>
+                    </div>
+                </div>
+                
+                <!-- Mobile Legend (shown only on mobile) -->
+                <div class="mobile-legend" style="display: none;">
+                    <div class="nav-buttons">
+                        <button class="nav-button" id="prev-route">←</button>
+                    </div>
+                    <div class="route-display">
+                        <div class="color-box" id="current-route-color"></div>
+                        <span class="route-name" id="current-route-name"></span>
+                    </div>
+                    <div class="nav-buttons">
+                        <button class="nav-button" id="next-route">→</button>
+                    </div>
+                    <div class="legend-counter" id="route-counter"></div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="info-panel" id="conference">
+            <h2>Get Directions to CNR</h2>
+            <p>Use one of these options to get directions from your current location to CNR Research Area (Via Piero Gobetti, 101):</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; margin-bottom: 30px;">
+                <a href="https://www.google.com/maps/dir/?api=1&destination=44.5221%2C11.3274&travelmode=transit" target="_blank" class="action-button" style="display: flex; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="margin-right: 8px;">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    Public Transit Directions
+                </a>
+
+                <a href="https://www.google.com/maps/dir/?api=1&destination=44.5221%2C11.3274&travelmode=bicycling" target="_blank" class="action-button" style="display: flex; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="margin-right: 8px;">
+                        <path d="M15.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5zm5.8-10l2.4-2.4.8.8c1.3 1.3 3 2.1 5.1 2.1V9c-1.5 0-2.7-.6-3.6-1.5l-1.9-1.9c-.5-.4-1-.6-1.6-.6s-1.1.2-1.4.6L7.8 8.4c-.4.4-.6.9-.6 1.4 0 .6.2 1.1.6 1.4L11 14v5h2v-6.2l-2.2-2.3zM19 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5z"/>
+                    </svg>
+                    Cycling Directions
+                </a>
+
+                <a href="https://www.google.com/maps/dir/?api=1&destination=44.5221%2C11.3274&travelmode=walking" target="_blank" class="action-button" style="display: flex; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="margin-right: 8px;">
+                        <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/>
+                    </svg>
+                    Walking Directions
+                </a>
+                
+                <a href="https://www.google.com/maps/dir/?api=1&destination=44.5221%2C11.3274&travelmode=driving" target="_blank" class="action-button" style="display: flex; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="margin-right: 8px;">
+                        <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                    </svg>
+                    Driving Directions
+                </a>
+            </div>
+            <h2>Open CNR Map</h2>
+            <a href="../docs/map_conference.pdf" target="_blank" class="action-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="margin-right: 8px; margin-bottom: -3px;">
+                    <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM10 5.47l4 1.4v11.66l-4-1.4V5.47zm-5 .99l3-1.01v11.7l-3 1.16V6.46zm14 11.08l-3 1.01V6.86l3-1.16v11.84z"/>
+                    </svg>
+                    Venue Map
+            </a>
+        </div>
+        
+        <div class="info-panel" id="buses">
+            <h2>Bus Line Information</h2>
+            <p>The following bus lines connect Bologna city center to the CNR Research Area located at Via Piero Gobetti, 101. Each bus line has a different route through the city.</p>
+            
+            <div class="bus-details">
+
+
+                <div class="bus-card">
+                    <div class="bus-header" style="background-color: #0f9d58;">
+                        <div class="bus-number">37</div>
+                        <div class="bus-route">Via Gobetti - CNR</div>
+                    </div>
+                    <div class="bus-info">
+                        <p>One of the main transit lines directly connecting the eastern sectors of the city and the Central Station to the CNR research area.</p>
+                        <p>⚠️ <b>Could be crowded around 9:00</b> </p>
+                        <div class="key-stops">
+                            <h4>Key Stops:</h4>
+                            <ul>
+                                <li>Bombicci</li>
+                                <li>Stazione Centrale (Train Station)</li>
+                                <li>Piazza dell'Unità</li>
+                                <li><b>Rotonda C.N.R.</b></li>
+                            </ul>
+                        </div>
+                        <!-- <div class="bus-times">
+                            <h4>Weekday Departures from Bologna Centrale:</h4>
+                            <div class="times-grid">
+                                <div class="time-slot">6:20</div>
+                                <div class="time-slot">6:50</div>
+                                <div class="time-slot">7:20</div>
+                                <div class="time-slot">7:50</div>
+                                <div class="time-slot">8:20</div>
+                                <div class="time-slot">8:50</div>
+                            </div>
+                        </div> -->
+                        <div class="directions-section">
+                            <a href="https://www.tper.it/bo-37" target="_blank" class="action-button" style="background-color: #0f9d58;">
+                                View Line 37 Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bus-card">
+                    <div class="bus-header" style="background-color: #1a237e;">
+                        <div class="bus-number">87</div>
+                        <div class="bus-route">Via Gobetti - CNR</div>
+                    </div>
+                    <div class="bus-info">
+                        <p>One of the main transit lines connecting the western sectors of the city and the Central Station to the CNR research area.</p>
+                        <p>⚠️ <b>Could be crowded around 9:00</b> </p>
+                        <div class="key-stops">
+                            <h4>Key Stops:</h4>
+                            <ul>
+                                <li>Borgo Panigale</li>
+                                <li>Porta San Felice</li>
+                                <li>Stazione Centrale (Train Station)</li>
+                                <li><b>Rotonda C.N.R.</b></li>
+                            </ul>
+                        </div>
+                        <!-- <div class="bus-times">
+                            <h4>Weekday Departures from Bologna Centrale:</h4>
+                            <div class="times-grid">
+                                <div class="time-slot">6:15</div>
+                                <div class="time-slot">6:45</div>
+                                <div class="time-slot">7:15</div>
+                                <div class="time-slot">7:45</div>
+                                <div class="time-slot">8:15</div>
+                                <div class="time-slot">8:45</div>
+                            </div>
+                        </div> -->
+                        <div class="directions-section">
+                            <a href="https://www.tper.it/bo-87" target="_blank" class="action-button" style="background-color: #1a237e;">
+                                View Line 87 Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bus-card">
+                    <div class="bus-header" style="background-color: #0288d1;">
+                        <div class="bus-number">27A</div>
+                        <div class="bus-route">Corticella - Via Byron</div>
+                    </div>
+                    <div class="bus-info">
+                        <p>Provides very frequent (each 7 min) service between the city center (via Irnerio) to <b style="color: #0288d1;">Palestra Ippodromo which is 9 minutes walk to CNR</b>.</p>
+                        <div class="key-stops">
+                            <h4>Key Stops:</h4>
+                            <ul>
+                                <li>Porta San Vitale</li>
+                                <li>Porta Maggiore</li>
+                                <li>Irnerio</li>
+                                <li>Piazza dell'Unità</li>
+                                <li><b>Palestra Ippodromo</b></li>
+                            </ul>
+                        </div>
+                        <!-- <div class="bus-times">
+                            <h4>Weekday Departures from Bologna Centrale:</h4>
+                            <div class="times-grid">
+                                <div class="time-slot">6:40</div>
+                                <div class="time-slot">7:10</div>
+                                <div class="time-slot">7:40</div>
+                                <div class="time-slot">8:10</div>
+                                <div class="time-slot">8:40</div>
+                                <div class="time-slot">9:10</div>
+                            </div>
+                        </div> -->
+                        <div class="directions-section">
+                            <a href="https://www.tper.it/bo-27" target="_blank" class="action-button" style="background-color: #0288d1;">
+                                View Line 27 Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="bus-card">
+                    <div class="bus-header" style="background-color: #e65100;">
+                        <div class="bus-number">11C</div>
+                        <div class="bus-route">Arcoveggio - Giardini</div>
+                    </div>
+                    <div class="bus-info">
+                        <p>Provides frequent (each 15 min) service between the city center to <b style="color: #e65100;">Palestra Ippodromo which is 9 minutes walk to CNR</b>.</p>
+                        <div class="key-stops">
+                            <h4>Key Stops:</h4>
+                            <ul>
+                                <li>Piazza Minghetti</li>
+                                <li>Piazza Malpighi</li>
+                                <li>Amendola</li>
+                                <li>Piazza dell'Unità</li>
+                                <li><b>Palestra Ippodromo</b></li>
+                            </ul>
+                        </div>
+                        <!-- <div class="bus-times">
+                            <h4>Weekday Arrival Times to CNR:</h4>
+                            <div class="times-grid">
+                                <div class="time-slot">6:30</div>
+                                <div class="time-slot">7:00</div>
+                                <div class="time-slot">7:30</div>
+                                <div class="time-slot">8:00</div>
+                                <div class="time-slot">8:30</div>
+                                <div class="time-slot">9:00</div>
+                            </div>
+                        </div> -->
+                        <div class="directions-section">
+                            <a href="https://www.tper.it/bo-11" target="_blank" class="action-button" style="background-color: #e65100;">
+                                View Line 11 Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bus-card">
+                    <div class="bus-header" style="background-color: #f9a825;">
+                        <div class="bus-number">11B</div>
+                        <div class="bus-route">Rosa Luxemburg</div>
+                    </div>
+                    <div class="bus-info">
+                        <p>Provides frequent (each 15 min) service between the city center to <b style="color: #f9a825;">Rotonda Gobetti which is 9 minutes walk to CNR</b>.</p>
+                        <div class="key-stops">
+                            <h4>Key Stops:</h4>
+                            <ul>
+                                <li>Piazza Minghetti</li>
+                                <li>Piazza Malpighi</li>
+                                <li>Amendola</li>
+                                <li>Piazza dell'Unità</li>
+                                <li><b>Rotonda Gobetti</b></li>
+                            </ul>
+                        </div>
+                        <!-- <div class="bus-times">
+                            <h4>Weekday Arrival Times to CNR:</h4>
+                            <div class="times-grid">
+                                <div class="time-slot">6:30</div>
+                                <div class="time-slot">7:00</div>
+                                <div class="time-slot">7:30</div>
+                                <div class="time-slot">8:00</div>
+                                <div class="time-slot">8:30</div>
+                                <div class="time-slot">9:00</div>
+                            </div>
+                        </div> -->
+                        <div class="directions-section">
+                            <a href="https://www.tper.it/bo-11" target="_blank" class="action-button" style="background-color: #f9a825;">
+                                View Line 11 Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="bus-card">
+                    <div class="bus-header" style="background-color: #ffd600;">
+                        <div class="bus-number">34</div>
+                        <div class="bus-route">Ospedale Maggiore</div>
+                    </div>
+                    <div class="bus-info">
+                        <p>Fast (10 min) but not frequent (each 30 min) connection from Bologna Centrale (Train Station, back entrance) to CNR.</p>
+                        <div class="key-stops">
+                            <h4>Key Stops:</h4>
+                            <ul>
+                                <li>Piazza dell'Unità</li>
+                                <li>Tiarini (Train Station, back entrance)</li>
+                                <li><b>Rotonda C.N.R.</b></li>
+                            </ul>
+                        </div>
+                        <!-- <div class="bus-times">
+                            <h4>Weekday Departures from Piazza dell'Unità:</h4>
+                            <div class="times-grid">
+                                <div class="time-slot">6:25</div>
+                                <div class="time-slot">6:55</div>
+                                <div class="time-slot">7:25</div>
+                                <div class="time-slot">7:55</div>
+                                <div class="time-slot">8:25</div>
+                                <div class="time-slot">8:55</div>
+                            </div>
+                        </div> -->
+                        <div class="directions-section">
+                            <a href="https://www.tper.it/bo-34" target="_blank" class="action-button" style="background-color: #ffd600;">
+                                View Line 34 Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="bus-card">
+                    <div class="bus-header" style="background-color: #9c27b0;">
+                        <div class="bus-number">30</div>
+                        <div class="bus-route">Via Colombo - Sostegno</div>
+                    </div>
+                    <div class="bus-info">
+                        <p>Connects the south sectors of the city to <b style="color: #9c27b0;">Beverara which is 10 minutes walk to CNR</b>. </p>
+                        <div class="key-stops">
+                            <h4>Key Stops:</h4>
+                            <ul>
+                                <li>Porta Castiglione</li>
+                                <li>Piazza Malpighi</li>
+                                <li>Stazione Centrale (Train Station)</li>
+                                <li>Marco Polo</li>
+                                <li><b>Beverara</b></li>
+                            </ul>
+                        </div>
+                        <!-- <div class="bus-times">
+                            <h4>Weekday Departures from Bologna Centrale:</h4>
+                            <div class="times-grid">
+                                <div class="time-slot">6:35</div>
+                                <div class="time-slot">7:05</div>
+                                <div class="time-slot">7:35</div>
+                                <div class="time-slot">8:05</div>
+                                <div class="time-slot">8:35</div>
+                                <div class="time-slot">9:05</div>
+                            </div>
+                        </div> -->
+                        <div class="directions-section">
+                            <a href="https://www.tper.it/bo-30" target="_blank" class="action-button" style="background-color: #9c27b0;">
+                                View Line 30 Schedule
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="info-panel" id="ecr-event">
+            <h2>Dragon Pub - Early Career Event (26 May)</h2>
+
+            <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px;">
+                <!-- Text Content (Left on desktop, Top on mobile) -->
+                <div style="flex: 1; min-width: 300px;">
+                    <p>The Early Career Event will be held at the Dragon Pub, also known as "kg of pasta". The cost is <b>15€ to be paid at the entrance</b> and includes a drink and buffet dinner with: 
+                    <ul>
+                        <li>Gramigna with ragu</li>
+                        <li>Garganelli with speck and zucchine</li>
+                        <li>Pasta all'arrabbiata (spicy tomato)</li>
+                    </ul>
+                Other request should be made in the circulated form. To have more information on the pasta types you can have a look at: <a href="https://arxiv.org/abs/2403.20314">arxiv:2403.20314</a> and <a href="https://arxiv.org/abs/2503.23126">arxiv:2503.23126</a>.</p>
+
+                    <p><b>Address:</b> Viale della Repubblica, 16a, 40127 Bologna BO, Italy</p>
+                    <p><b>Date and Time:</b> Monday, 26 May 2025, at 19:30</p>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=44.5042863%2C11.3629871&travelmode=transit" target="_blank" class="action-button">
+                        Get Directions
+                    </a>
+                </div>
+                
+                <!-- Image (Right on desktop, Bottom on mobile) -->
+                <div style="width: 500px; height: 300px; overflow: hidden;">
+                    <img src="https://img.restaurantguru.com/r902-Dragon-Pub-exterior.jpg" 
+                        alt="Salone del Podesta entrance" 
+                        style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="info-panel" id="social-dinner">
+            <h2>Re Enzo Palace - Social dinner (28 May)</h2>
+
+            <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px;">
+                <!-- Text Content (Left on desktop, Top on mobile) -->
+                <div style="flex: 1; min-width: 300px;">
+                    <p>The social dinner will take place at the historic Re Enzo Palace, located in the heart of Bologna. This iconic venue is a short walk from Piazza Maggiore and offers a unique atmosphere for the event.</p>
+                    <p><b>Address:</b> Piazza del Nettuno, 1, 40124 Bologna BO, Italy</p>
+                    <p><b>Date and Time:</b> Wednesday, 28 May 2025, at TBD</p>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=44.4944457%2C11.3428852&travelmode=walking" target="_blank" class="action-button">
+                        Get Directions
+                    </a>
+                </div>
+                
+                <!-- Image (Right on desktop, Bottom on mobile) -->
+                <div style="width: 500px; height: 300px; overflow: hidden;">
+                    <img src="https://www.palazzoreenzo.com/imageserver/home_slide/files/immagini/home-slide/salone-del-podesta-ingresso.jpg" 
+                        alt="Salone del Podesta entrance" 
+                        style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </div>
+            </div>
+
+        </div>
+
+
+        
+        <div class="info-panel" id="public-event">
+            <h2>Cinema Modernissimo - Public Event (in italian, 29 May)</h2>
+
+            <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px;">
+                <!-- Text Content (Left on desktop, Top on mobile) -->
+                <div style="flex: 1; min-width: 300px;">
+                    <p>In the context of the ET Symposium, we organize a public outreach event on the Eintein Telescope and the future of gravitational wave science.  Cinema Modernissimo is a liberty-style gem, originally opened in 1915 as part of Palazzo Ronzani, designed by architect Gualtiero Pontoni. After operating for over 90 years and closing in 2007, it was meticulously restored and reopened in November 2023.   </p>
+                    <p><b>Address:</b> Piazza Re Enzo, 40125 Bologna BO, Italy</p>
+                    <p><b>Date and Time:</b> Thursday, 29 May 2025, at TBD</p>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=44.4945039%2C11.3437416&travelmode=walking" target="_blank" class="action-button">
+                        Get Directions
+                    </a>
+                </div>
+                
+                <!-- Image (Right on desktop, Bottom on mobile) -->
+                <div style="width: 500px; height: 300px; overflow: hidden;">
+                    <img src="https://cinetecadibologna.it/programmazione/wp-content/uploads/sites/2/2025/03/cinema-modernissimo-cineteca.jpg" 
+                        alt="Salone del Podesta entrance" 
+                        style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </div>
+            </div>
+
+        </div>
+
+
+
+        <footer>
+            <div class="container">
+                <p>Data source: <a href="https://www.tper.it" class="footer-link" target="_blank">TPER - Trasporto Passeggeri Emilia Romagna</a></p>
+
+                <p>XV ET Symposium | Bologna - May 26, 2025 - May 30, 2025</p>
+                <p>CNR - Bologna Research Area, Via Piero Gobetti, 101, 40129 Bologna</p>
+                <p><i>This website is kindly provided to you by Matteo Tagliazucchi and Nicola Borghi.</i></p>
+                <p><a href="Bologna-ET-timetable.html" class="footer-link">Timetable 2.0</a></p>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Define the routes data
+            const routes = [
+                { name: "37 Via Gobetti - CNR", color: "#0f9d58" },
+                { name: "87 Via Gobetti - CNR", color: "#1a237e" },
+                { name: "27A Corticella - Via Byron", color: "#0288d1" },
+                { name: "11C Arcoveggio - Giardini", color: "#e65100" },
+                { name: "11B Rosa Luxemburg", color: "#f9a825" },
+                { name: "34 Ospedale Maggiore", color: "#ffd600" },
+                { name: "30 Via Colombo - Sostegno", color: "#9c27b0" }
+            ];
+            
+            let currentRouteIndex = 0;
+            
+            // Elements
+            const desktopLegend = document.querySelector('.desktop-legend');
+            const mobileLegend = document.querySelector('.mobile-legend');
+            const currentRouteColor = document.getElementById('current-route-color');
+            const currentRouteName = document.getElementById('current-route-name');
+            const routeCounter = document.getElementById('route-counter');
+            const prevButton = document.getElementById('prev-route');
+            const nextButton = document.getElementById('next-route');
+            
+            // Function to check if the device is mobile
+            function isMobile() {
+                return window.innerWidth <= 768;
+            }
+            
+            // Function to update the display with the current route
+            function updateRouteDisplay() {
+                const route = routes[currentRouteIndex];
+                currentRouteColor.style.backgroundColor = route.color;
+                currentRouteName.textContent = route.name;
+                routeCounter.textContent = `${currentRouteIndex + 1}/${routes.length}`;
+            }
+            
+            // Function to navigate between routes
+            function navigateRoute(direction) {
+                if (direction === 'next') {
+                    currentRouteIndex = (currentRouteIndex + 1) % routes.length;
+                } else {
+                    currentRouteIndex = (currentRouteIndex - 1 + routes.length) % routes.length;
+                }
+                updateRouteDisplay();
+            }
+            
+            // Function to toggle between desktop and mobile views
+            function toggleView() {
+                if (isMobile()) {
+                    desktopLegend.style.display = 'none';
+                    mobileLegend.style.display = 'flex';
+                    updateRouteDisplay();
+                } else {
+                    desktopLegend.style.display = 'block';
+                    mobileLegend.style.display = 'none';
+                }
+            }
+            
+            // Set up event listeners
+            prevButton.addEventListener('click', function() {
+                navigateRoute('prev');
+            });
+            
+            nextButton.addEventListener('click', function() {
+                navigateRoute('next');
+            });
+            
+            // Initialize the view
+            toggleView();
+            
+            // Handle window resize
+            window.addEventListener('resize', toggleView);
+        });
+    </script>
+    
+</body>
+</html>

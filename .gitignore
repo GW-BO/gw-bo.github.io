@@ -1,0 +1,5 @@
+# Ignore temporary and backup files
+mails.txt
+
+# Ignore files and directories created by Claude code
+.claude/
