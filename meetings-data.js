@@ -18,20 +18,20 @@ const meetingsData = [
     // },
 
         {
-        date: "28 November 2025",
+        date: "24 November 2025",
         speaker: "Lucia Papalini",
         affiliation: "University of Pisa",
-        title: "TBA",
-        // meetingLink: "TBD",
+        title: "Overlapping Gravitational-Wave Signals in 3G Detectors: Transformers and Normalizing Flows for joint inference",
+        meetingLink: "meet.google.com/dsx-fcga-omu",
         papers: [
-            // {
-            //     title: "Searching for additional structure and redshift evolution in the observed binary black hole population [...]",
-            //     url: "https://ui.adsabs.harvard.edu/abs/2025arXiv250220445G/abstract"
-            // },
-            // {
-            //     title: "Population of Merging Compact Binaries Inferred Using Gravitational Waves through GWTC-3",
-            //     url: "https://ui.adsabs.harvard.edu/abs/2023PhRvX..13a1048A/abstract"
-            // }
+            {
+                title: "Can Transformers help us perform parameter estimation of overlapping signals in gravitational wave detectors?",
+                url: "https://iopscience.iop.org/article/10.1088/1361-6382/adfd33"
+            },
+            {
+                title: "Deep learning to detect GWs from binary close encounters: Fast parameter estimation using normalizing flows",
+                url: "https://journals.aps.org/prd/abstract/10.1103/PhysRevD.109.102004"
+            }
         ]
     },
     {
