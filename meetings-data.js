@@ -22,7 +22,6 @@ const meetingsData = [
         speaker: "Lucia Papalini",
         affiliation: "University of Pisa",
         title: "Overlapping Gravitational-Wave Signals in 3G Detectors: Transformers and Normalizing Flows for joint inference",
-        meetingLink: "https://meet.google.com/dsx-fcga-omu",
         papers: [
             {
                 title: "Can Transformers help us perform parameter estimation of overlapping signals in gravitational wave detectors?",
